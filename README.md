@@ -4,7 +4,7 @@ Form validation for React
 ## Install
 
 ```bash
-$ tnpm install @tingxin/react-form-validation --save
+$ tnpm install react-form-validation-hoc --save
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ Please refer to [async-validator](https://github.com/yiminghe/async-validator) f
 ## Example
 ```javascript
 import React from 'react';
-import create from '@tingxin/react-form-validation';
+import create from 'react-form-validation-hoc';
 
 class MyForm extends React.Component {
   state = {
@@ -36,7 +36,6 @@ class MyForm extends React.Component {
   }
 
   render() {
-    console.log(this.props.validator);
     const { FieldDecorator, errors } = this.props.validator;
     return (
       <form onSubmit={this.handleSubmit}>
