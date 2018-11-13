@@ -16,8 +16,12 @@
     "type": "git",
     "url": "git+https://github.com/tingxinCY/react-form-validation.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "react",
+    "form",
+    "validation"
+  ],
+  "author": "tingxinCY",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/tingxinCY/react-form-validation/issues"
