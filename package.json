@@ -1,5 +1,5 @@
 {
-  "name": "@tingxin/react-form-validation",
+  "name": "react-form-validation-hoc",
   "version": "1.0.0",
   "description": "Form validation for React",
   "module": "dist/vform.esm.js",
