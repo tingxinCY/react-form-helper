@@ -2,7 +2,7 @@
  * @Author: 花豪（huahao.cy@alibaba-inc.com）
  * @Date: 2018-08-17 12:19:53
  * @Last Modified by: 花豪（huahao.cy@alibaba-inc.com）
- * @Last Modified time: 2018-11-14 15:41:10
+ * @Last Modified time: 2018-11-14 16:04:00
  * @reference https://github.com/yiminghe/async-validator
  */
 import React, { Component } from 'react';
@@ -40,7 +40,7 @@ const processData = (errors, valuesResult) => {
 
 /**
  * hoc函数
- * @param {*} options VForm配置
+ * @param {*} options validtor配置
  */
 const create = (options = {}) => {
   const FormContext = React.createContext({
@@ -49,7 +49,7 @@ const create = (options = {}) => {
     bindField: () => {}, // 绑定控件
     unbindField: () => {}, // 解绑控件
     validateField: () => {}, // 校验字段
-    options: {}, // vform全局配置信息
+    options: {}, // validtor全局配置信息
     parentProps: null, // 父级props
   });
   const FieldDecorator = createFieldDecorator(FormContext);
@@ -73,11 +73,12 @@ const create = (options = {}) => {
         values: this.contextState.values,
       };
 
-      this.vForm = {
+      this.validtor = {
         validateFields: this.validateFields, // 执行全局校验的函数
         reset: this.reset,
         errors: {}, // 全局表单字段validation状态集合对象
         FieldDecorator, // 表单控件注册装饰器
+        getValues: this.getValues, // 获取表单数据对象
       };
 
       this.isReceiveProps = false; // 外在传入props时触发更新
@@ -281,14 +282,14 @@ const create = (options = {}) => {
     }
 
     render() {
-      this.vForm.errors = {};
+      this.validtor.errors = {};
       this.contextState.fields.forEach((field) => {
-        this.vForm.errors[field.get('name')] = field.get('error');
+        this.validtor.errors[field.get('name')] = field.get('error');
       });
 
       return (
         <FormContext.Provider value={this.contextState}>
-          <WrappedElement validator={{ ...this.vForm }} {...this.props} />
+          <WrappedElement validator={{ ...this.validtor }} {...this.props} />
         </FormContext.Provider>
       );
     }
