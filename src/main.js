@@ -2,7 +2,7 @@
  * @Author: 花豪（huahao.cy@alibaba-inc.com）
  * @Date: 2018-08-17 12:19:53
  * @Last Modified by: 花豪（huahao.cy@alibaba-inc.com）
- * @Last Modified time: 2018-10-28 15:10:27
+ * @Last Modified time: 2018-11-14 15:41:10
  * @reference https://github.com/yiminghe/async-validator
  */
 import React, { Component } from 'react';
@@ -10,6 +10,33 @@ import Schema from 'async-validator';
 import { Map, List, is } from 'immutable';
 
 import createFieldDecorator from './FieldDecorator';
+
+// 处理content中的数据，产出最终的errors、values
+const processData = (errors, valuesResult) => {
+  fields.forEach((field, key) => {
+    const name = field.get('name');
+    const error = field.get('error');
+    if (error) {
+      const errorName = name || key;
+      errors[errorName] = error;
+    }
+
+    if (name) {
+      const path = name.split('.');
+
+      // 根据path，初始化value的Immutable对象，根据path每级路径，创建List或者Map
+      for (let i = 1; i < path.length; i++) {
+        const tmpPath = path.slice(0, i);
+        if (valuesResult.getIn(tmpPath) === undefined) {
+          const tmpValue = Number.isNaN(Number(path[i])) ? Map() : List();
+          valuesResult = valuesResult.setIn(tmpPath, tmpValue);
+        }
+      }
+
+      valuesResult = valuesResult.setIn(path, values.get(key));
+    }
+  });
+}
 
 /**
  * hoc函数
@@ -102,30 +129,31 @@ const create = (options = {}) => {
         if (cb) {
           const errors = {};
           let valuesResult = Map();
-          fields.forEach((field, key) => {
-            const name = field.get('name');
-            const error = field.get('error');
-            if (error) {
-              const errorName = name || key;
-              errors[errorName] = error;
-            }
+          processData(errors, valuesResult);
+          // fields.forEach((field, key) => {
+          //   const name = field.get('name');
+          //   const error = field.get('error');
+          //   if (error) {
+          //     const errorName = name || key;
+          //     errors[errorName] = error;
+          //   }
 
-            if (name) {
-              const path = name.split('.');
+          //   if (name) {
+          //     const path = name.split('.');
 
-              // 根据path，初始化value的Immutable对象，根据path每级路径，创建List或者Map
-              for (let i = 1; i < path.length; i++) {
-                const tmpPath = path.slice(0, i);
-                if (valuesResult.getIn(tmpPath) === undefined) {
-                  const tmpValue = Number.isNaN(Number(path[i])) ? Map() : List();
-                  valuesResult = valuesResult.setIn(tmpPath, tmpValue);
-                }
-              }
+          //     // 根据path，初始化value的Immutable对象，根据path每级路径，创建List或者Map
+          //     for (let i = 1; i < path.length; i++) {
+          //       const tmpPath = path.slice(0, i);
+          //       if (valuesResult.getIn(tmpPath) === undefined) {
+          //         const tmpValue = Number.isNaN(Number(path[i])) ? Map() : List();
+          //         valuesResult = valuesResult.setIn(tmpPath, tmpValue);
+          //       }
+          //     }
 
-              valuesResult = valuesResult.setIn(path, values.get(key));
-            }
-          });
-          cb(errors, valuesResult);
+          //     valuesResult = valuesResult.setIn(path, values.get(key));
+          //   }
+          // });
+          cb(errors, valuesResult.toJS());
         }
       });
     }
@@ -156,7 +184,7 @@ const create = (options = {}) => {
             cbError = null;
           }
 
-          callback && callback(cbError, cbValues.toJS());
+          callback && callback(cbError, cbValues);
         });
       }
     }
@@ -239,6 +267,17 @@ const create = (options = {}) => {
 
         this.doValidate(descriptor, source);
       }
+    }
+
+    /**
+     * 获取加工好的values数据
+     * @return values Object
+     */
+    getValues = () => {
+      const errors = {};
+      let valuesResult = Map();
+      processData(errors, valuesResult);
+      return valuesResult.toJS();
     }
 
     render() {
