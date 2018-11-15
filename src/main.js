@@ -2,7 +2,7 @@
  * @Author: 花豪（huahao.cy@alibaba-inc.com）
  * @Date: 2018-08-17 12:19:53
  * @Last Modified by: 花豪（huahao.cy@alibaba-inc.com）
- * @Last Modified time: 2018-11-14 16:04:00
+ * @Last Modified time: 2018-11-14 16:31:51
  * @reference https://github.com/yiminghe/async-validator
  */
 import React, { Component } from 'react';
@@ -11,8 +11,15 @@ import { Map, List, is } from 'immutable';
 
 import createFieldDecorator from './FieldDecorator';
 
-// 处理content中的数据，产出最终的errors、values
-const processData = (errors, valuesResult) => {
+/**
+ * 处理context中的数据，产出errors、values
+ * @param {Object} fields 源数据表单字段
+ * @param {Object} values 源数据表单值
+ */
+const processData = (fields, values) => {
+  const errors = {};
+  let valuesResult = Map();
+
   fields.forEach((field, key) => {
     const name = field.get('name');
     const error = field.get('error');
@@ -36,11 +43,16 @@ const processData = (errors, valuesResult) => {
       valuesResult = valuesResult.setIn(path, values.get(key));
     }
   });
-}
+
+  return {
+    errors,
+    valuesResult: valuesResult.toJS(),
+  };
+};
 
 /**
  * hoc函数
- * @param {*} options validtor配置
+ * @param {*} options validator配置
  */
 const create = (options = {}) => {
   const FormContext = React.createContext({
@@ -49,7 +61,7 @@ const create = (options = {}) => {
     bindField: () => {}, // 绑定控件
     unbindField: () => {}, // 解绑控件
     validateField: () => {}, // 校验字段
-    options: {}, // validtor全局配置信息
+    options: {}, // validator全局配置信息
     parentProps: null, // 父级props
   });
   const FieldDecorator = createFieldDecorator(FormContext);
@@ -73,7 +85,7 @@ const create = (options = {}) => {
         values: this.contextState.values,
       };
 
-      this.validtor = {
+      this.validator = {
         validateFields: this.validateFields, // 执行全局校验的函数
         reset: this.reset,
         errors: {}, // 全局表单字段validation状态集合对象
@@ -128,9 +140,9 @@ const create = (options = {}) => {
 
         // 构建error集合和value集合，执行cb函数
         if (cb) {
-          const errors = {};
-          let valuesResult = Map();
-          processData(errors, valuesResult);
+          // const errors = {};
+          // let valuesResult = Map();
+          const { errors, valuesResult } = processData(fields, values);
           // fields.forEach((field, key) => {
           //   const name = field.get('name');
           //   const error = field.get('error');
@@ -154,7 +166,7 @@ const create = (options = {}) => {
           //     valuesResult = valuesResult.setIn(path, values.get(key));
           //   }
           // });
-          cb(errors, valuesResult.toJS());
+          cb(errors, valuesResult);
         }
       });
     }
@@ -275,21 +287,23 @@ const create = (options = {}) => {
      * @return values Object
      */
     getValues = () => {
-      const errors = {};
-      let valuesResult = Map();
-      processData(errors, valuesResult);
-      return valuesResult.toJS();
+      const fields = this.contextState.fields;
+      const values = this.contextState.values;
+      // const errors = {};
+      // let valuesResult = Map();
+      const { valuesResult } = processData(fields, values);
+      return valuesResult;
     }
 
     render() {
-      this.validtor.errors = {};
+      this.validator.errors = {};
       this.contextState.fields.forEach((field) => {
-        this.validtor.errors[field.get('name')] = field.get('error');
+        this.validator.errors[field.get('name')] = field.get('error');
       });
 
       return (
         <FormContext.Provider value={this.contextState}>
-          <WrappedElement validator={{ ...this.validtor }} {...this.props} />
+          <WrappedElement validator={{ ...this.validator }} {...this.props} />
         </FormContext.Provider>
       );
     }
