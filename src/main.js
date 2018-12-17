@@ -2,7 +2,7 @@
  * @Author: 花豪（huahao.cy@alibaba-inc.com）
  * @Date: 2018-08-17 12:19:53
  * @Last Modified by: 花豪（huahao.cy@alibaba-inc.com）
- * @Last Modified time: 2018-11-14 16:31:51
+ * @Last Modified time: 2018-12-17 13:41:35
  * @reference https://github.com/yiminghe/async-validator
  */
 import React, { Component } from 'react';
@@ -140,32 +140,7 @@ const create = (options = {}) => {
 
         // 构建error集合和value集合，执行cb函数
         if (cb) {
-          // const errors = {};
-          // let valuesResult = Map();
           const { errors, valuesResult } = processData(fields, values);
-          // fields.forEach((field, key) => {
-          //   const name = field.get('name');
-          //   const error = field.get('error');
-          //   if (error) {
-          //     const errorName = name || key;
-          //     errors[errorName] = error;
-          //   }
-
-          //   if (name) {
-          //     const path = name.split('.');
-
-          //     // 根据path，初始化value的Immutable对象，根据path每级路径，创建List或者Map
-          //     for (let i = 1; i < path.length; i++) {
-          //       const tmpPath = path.slice(0, i);
-          //       if (valuesResult.getIn(tmpPath) === undefined) {
-          //         const tmpValue = Number.isNaN(Number(path[i])) ? Map() : List();
-          //         valuesResult = valuesResult.setIn(tmpPath, tmpValue);
-          //       }
-          //     }
-
-          //     valuesResult = valuesResult.setIn(path, values.get(key));
-          //   }
-          // });
           cb(errors, valuesResult);
         }
       });
@@ -178,11 +153,11 @@ const create = (options = {}) => {
     validateFields = (callback) => {
       const fields = this.contextState.fields;
       const values = this.contextState.values;
-
+      
       const rules = {};
       const source = {};
       fields.forEach((field, key) => {
-        if (field.get('rules')) {
+        if (field.get('rules').length > 0) {
           rules[key] = field.get('rules');
         }
 
@@ -190,8 +165,8 @@ const create = (options = {}) => {
           source[key] = values.get(key);
         }
       });
-
-      if (Object.keys(source).length > 0) {
+      
+      if (Object.keys(rules).length > 0) {
         this.doValidate(rules, source, (cbError, cbValues) => {
           if (Object.keys(cbError).length === 0) {
             cbError = null;
@@ -199,6 +174,10 @@ const create = (options = {}) => {
 
           callback && callback(cbError, cbValues);
         });
+      } else {
+        // 用来做数据收集
+        const { valuesResult } = processData(fields, values);
+        callback && callback(null, valuesResult);
       }
     }
 
