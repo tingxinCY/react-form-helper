@@ -5,24 +5,25 @@ import Immutable, { is } from 'immutable';
  * 通用表单组件高级函数，统一执行控件绑定、解绑、value校验
  */
 class VFieldWrapper extends Component {
-  componentWillMount() {
-    const { bindField, uniqueId, name, rules, value } = this.props;
+  constructor(props) {
+    super(props);
+    const { bindField, uniqueId, name, rules, value } = props;
     bindField(uniqueId, name, rules, value);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { name, value, validateField, uniqueId, bindField, rules, options, parentProps } = nextProps;
+  componentDidUpdate(prevProps/* , prevState, snapshot */) {
+    const { name, value, validateField, uniqueId, bindField, rules/* , options, parentProps */ } = this.props;
 
     // 监控value变化，执行表单校验逻辑
-    if (!is(Immutable.fromJS(value), Immutable.fromJS(this.props.value))) {
+    if (!is(Immutable.fromJS(value), Immutable.fromJS(prevProps.value))) {
       validateField(uniqueId, value);
 
-      // 当前表单全局hook
+      // 当前表单全局hook，无法获取类的作用域，暂时关闭该hook
       // options.onValueChange && options.onValueChange(name, value, parentProps);
     }
 
     // 如果表单控件name值变化，需要重新绑定表单控件
-    if (name !== this.props.name) {
+    if (name !== prevProps.name) {
       bindField(uniqueId, name, rules, value);
     }
   }

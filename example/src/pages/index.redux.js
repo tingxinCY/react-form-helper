@@ -1,27 +1,12 @@
-# react-form-validation
-Form validation for React
-
-## Install
-
-```bash
-$ tnpm install react-form-validation-hoc --save
-```
-
-## Usage
-Please refer to [async-validator](https://github.com/yiminghe/async-validator) for verification rules
-
-## Example
-```javascript
 import React from 'react';
-import create from 'react-form-validation-hoc';
+// import create from 'react-form-validation-hoc';
+import create from '../../../dist/vform.esm';
+import { connect } from 'dva';
 
+/**
+ * index redux版本，改版本用来测试更改input内容时同时触发hoc的props和state更新
+ */
 class MyForm extends React.Component {
-  state = {
-    name: '',
-    sex: '',
-    school: '',
-  }
-
   handleSubmit = (event) => {
     event.preventDefault();
     this.props.validator.validateFields((errors, values) => {
@@ -31,22 +16,23 @@ class MyForm extends React.Component {
   }
 
   render() {
+    const { index, updateState } = this.props;
     const { FieldDecorator, errors } = this.props.validator;
     return (
       <form onSubmit={this.handleSubmit}>
         <div>
           <FieldDecorator
             name={'name'}
-            value={this.state.name}
+            value={index.name}
             rules={[
               { required: true, message: 'please enter your name' },
             ]}
           />
           name:
           <input
-            value={this.state.name}
+            value={index.name}
             onChange={(event) => {
-              this.setState({
+              updateState({
                 name: event.target.value,
               });
             }}
@@ -57,7 +43,7 @@ class MyForm extends React.Component {
         <div>
           <FieldDecorator
             name={'data.sex'}
-            value={this.state.sex}
+            value={index.sex}
             rules={[
               {
                 validator(rule, value, callback) {
@@ -72,9 +58,9 @@ class MyForm extends React.Component {
           />
           sex:
           <input
-            value={this.state.sex}
+            value={index.sex}
             onChange={(event) => {
-              this.setState({
+              updateState({
                 sex: event.target.value,
               });
             }}
@@ -85,16 +71,16 @@ class MyForm extends React.Component {
         <div>
           <FieldDecorator
             name={'data.school'}
-            value={this.state.school}
+            value={index.school}
             rules={[
               { required: true, message: 'school is required' },
             ]}
           />
           School:
           <input
-            value={this.state.school}
+            value={index.school}
             onChange={(event) => {
-              this.setState({
+              updateState({
                 school: event.target.value,
               });
             }}
@@ -108,7 +94,14 @@ class MyForm extends React.Component {
   }
 }
 
-export default create()(MyForm);
-```
+const mapStateToProps = ({ index }) => ({
+  index,
+});
 
+const mapDispatchToProps = (dispatch) => ({
+  updateState(data) {
+    dispatch({ type: 'index/updateState', data });
+  },
+});
 
+export default connect(mapStateToProps, mapDispatchToProps)(create()(MyForm));

@@ -1,6 +1,6 @@
 {
   "name": "react-form-validation-hoc",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Form validation for React",
   "module": "dist/vform.esm.js",
   "scripts": {
@@ -40,6 +40,14 @@
     "@babel/plugin-syntax-import-meta": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^6.5.1",
+    "eslint-config-ali": "^8.0.2",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^2.1.2",
+    "husky": "^3.0.8",
+    "lint-staged": "^9.4.2",
     "rollup": "^0.66.6",
     "rollup-plugin-babel": "^4.0.3"
   },
@@ -47,5 +55,16 @@
     "async-validator": "^1.10.0",
     "immutable": "^3.8.2",
     "react": "^16.6.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

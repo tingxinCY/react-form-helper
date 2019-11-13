@@ -11,18 +11,19 @@ export default [
   {
     input: 'src/main.js',
     output: [
-      { file: pkg.module, format: 'es' }
+      { file: pkg.module, format: 'es' },
     ],
     external: [
-      'react', 
-      'async-validator', 
-      'immutable', 
-      'prop-types'
+      'react',
+      'async-validator',
+      'immutable',
+      'prop-types',
     ],
     plugins: [
       babel({
-        exclude: 'node_modules/**' // only transpile our source code
-      })
-    ]
-  }
-]
+        exclude: 'node_modules/**', // only transpile our source code
+      }),
+    ],
+  },
+];
+

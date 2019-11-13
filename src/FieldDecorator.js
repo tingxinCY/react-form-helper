@@ -3,7 +3,7 @@
  * @Author: 花豪（huahao.cy@alibaba-inc.com）
  * @Date: 2018-08-20 11:31:07
  * @Last Modified by: 花豪（huahao.cy@alibaba-inc.com）
- * @Last Modified time: 2018-10-16 19:08:26
+ * @Last Modified time: 2019-11-12 18:16:04
  */
 
 import React, { Component } from 'react';
@@ -21,9 +21,13 @@ const createFieldDecorator = (FormContext) => {
     }
 
     render() {
-      const { value } = this.props;
-      const Child = React.Children.map(this.props.children, child => React.cloneElement(child, { value }));
-
+      const { value, children } = this.props;
+      let Child;
+      if (typeof children === 'string') { // 支持纯文本node
+        Child = children;
+      } else {
+        Child = React.Children.map(children, child => React.cloneElement(child, { value }));
+      }
       return (
         <FormContext.Consumer>
           {contextProps => (
@@ -45,7 +49,7 @@ const createFieldDecorator = (FormContext) => {
   };
 
   FieldDecorator.propTypes = {
-    name: PropTypes.string,
+    name: PropTypes.string.isRequired, // name是数据收集必须字段，不设置则该Field无实际意义
     value: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,

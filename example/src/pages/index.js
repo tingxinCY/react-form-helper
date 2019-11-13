@@ -1,19 +1,6 @@
-# react-form-validation
-Form validation for React
-
-## Install
-
-```bash
-$ tnpm install react-form-validation-hoc --save
-```
-
-## Usage
-Please refer to [async-validator](https://github.com/yiminghe/async-validator) for verification rules
-
-## Example
-```javascript
 import React from 'react';
-import create from 'react-form-validation-hoc';
+// import create from 'react-form-validation-hoc';
+import create from '../../../dist/vform.esm';
 
 class MyForm extends React.Component {
   state = {
@@ -109,6 +96,3 @@ class MyForm extends React.Component {
 }
 
 export default create()(MyForm);
-```
-
-
