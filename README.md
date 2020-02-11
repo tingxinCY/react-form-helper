@@ -25,8 +25,8 @@ class MyForm extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
     this.props.validator.validateFields((errors, values) => {
-      console.log(errors);
-      console.log(values);
+      console.log(errors); // eg. { name: "please enter your name", data.sex: "Please fill in male or female", data.school: "school is required" }
+      console.log(values); // eg. { name: "tony", data: { sex: "male", school: "ABC School" } }
     });
   }
 
