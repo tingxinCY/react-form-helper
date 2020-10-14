@@ -1,4 +1,4 @@
-# react-super-form
+# @tingxin_cy/react-super-form
 
 React表单解决方案，专注解决“数据采集”和“数据校验”两大表单核心需求，采用分布式设计从根源解决表格性能问题，同时该方案与UI解耦适用于任何UI框架或者原生UI，支持任何复杂的表单需求。
 
@@ -14,18 +14,18 @@ React表单解决方案，专注解决“数据采集”和“数据校验”两
 ## 安装
 
 ```js
-yarn add react-super-form -S
+yarn add @tingxin_cy/react-super-form -S
 ```
 or
 ```js
-yarn add react-super-form -S
+yarn add @tingxin_cy/react-super-form -S
 ```
 
 ## 导入
 ```js
-import ReactSuperForm from 'react-super-form`;
+import ReactSuperForm from '@tingxin_cy/react-super-form';
 
-const { Field } = formInstance; // 核心HOC组件
+const { Field, FormSpy } = formInstance; // 核心组件
 ```
 
 ## Class：ReactSuperForm
@@ -43,13 +43,13 @@ const formInstance = new ReactSuperForm({
 选填
 |  参数   | 说明  | 类型 |
 |  ----  | ----  | ---- |
-| onValueChange  | 全局钩子，监听value change事件，适用于一些全局通用的业务逻辑，例如日志发送，实时自动保存数据等 | (name:string, value:string\|number\|boolean, error:string) => void |
+| onValueChange  | 全局钩子，监听value change事件，适用于一些全局通用的业务逻辑，例如日志发送，实时自动保存数据等 | (name:string, value: string\|number\|boolean, error:string) => void |
 | onErrorsChange  | 全局钩子，监听全表单errors更新，可用于稍复杂的UI需求，例如需要在<Field>组件外部根据某些表单的error信息实现一些UI逻辑，可将errors写入state并进行渲染 | (errors: {[key:string]:string}|null)=>void |
 
 ---
 
 ## Component
-### Field
+### Field 
 核心组件，用于增强表单控件
 ```js
 const { Field } = formInstance;
@@ -59,8 +59,8 @@ const { Field } = formInstance;
 |  名称   | 说明  | 类型 | 空 |
 |  ----  | ----  | ---- | ---- |
 | name | 表单项Name，表单全局唯一，用于数据收集，支持namePath格式，自动收集格式化数据。 | string | 非空 |
-| defaultValue | 表单项默认值，value===undefined时生效，将实现非受控组件的效果，此时可以通过<Field\/>内部注入的onChange方法修改表单项值，此时将采用分布式渲染，性能有优势。 | string\|number\|boolean | 可空 |
-| value | 表单项Value，可通过修改该值实现表单数据的变更，将实现受控组件的效果，此时无法采用<Field \/>内部注入的onChange方法修改表单项值。 | string\|number\|boolean | 可空 |
+| defaultValue | 表单项默认值，value===undefined时生效，将实现非受控组件的效果，此时可以通过<Field\/>内部注入的onChange方法修改表单项值，此时将采用分布式渲染，性能有优势。 | string\| number\| boolean | 可空 |
+| value | 表单项Value，可通过修改该值实现表单数据的变更，将实现受控组件的效果，此时无法采用<Field \/>内部注入的onChange方法修改表单项值。 | string\| number\| boolean | 可空 |
 | rules | 检验规则，为空时将不对该表单值进行校验，可利用此特性实现单纯的数据收集。 | [Rule](#rule)[] | 可空 |
 
 ##### 分布式渲染:
@@ -89,7 +89,7 @@ const { Field } = formInstance;
 |  名称   | 说明  | 类型 |
 |  ----  | ----  | ---- |
 | value | 表单项Value，用于表单项赋值。 | string\|number\|boolean |
-| onChange | 通过该方法进行value更新，自动触发表单校验。 | (value:number\|string\|boolean) => Promise<{value:string\|number\|boolean, error:string}> |
+| onChange | 通过该方法进行value更新，自动触发表单校验。 | (value:number\|string\|boolean) => Promise<{value: string\|number\|boolean, error:string}> |
 | error | 错误信息，可用于错误信息展示 | string |
 
 ---
@@ -121,7 +121,7 @@ const { Field } = formInstance;
 表单校验规则，更多信息可查看[async-validator](https://github.com/yiminghe/async-validator)。
 |  名称   | 说明  | 类型 |
 |  ----  | ----  | ---- |
-| type？ | 数据校验类型 | 'string'\|'number'\|'integer'\|'float'\|'boolean'\|'url'\|'email'\|'enum'，默认值：'string' |
+| type？ | 数据校验类型 | 'string'\|'number'\|'integer'\| 'float'\|'boolean'\|'url'\| 'email'\|'enum'，默认值：'string' |
 | required? | 是否是必填项。 | boolean |
 | message? | 错误提示信息。 | string |
 | pattern? | 正则表达式。 | boolean |
@@ -143,7 +143,7 @@ const { FormSpy } = formInstance;
 ##### 属性
 | 名称 | 说明 | 类型 | 必须 |
 |  ----  | ----  | ---- | ---- |
-| initialValues | 当前FormSpy表单项初始值，可以按需提供，无需提供全量表单字段 | {[name:string]:string\|number\|boolean} | 非必须 |
+| initialValues | 当前FormSpy表单项初始值，可以按需提供，无需提供全量表单字段 | {[name:string]: string\|number\|boolean} | 非必须 |
 | subscription | 监听的表单项，当任一表单项value change时，可触发当前FormSpy重新渲染，并获取到最新表单项value，未设置时监控所有表单项 | {[name:string]:boolean} | 非必须 |
 
 #### Demo
@@ -190,7 +190,7 @@ const { FormSpy } = formInstance;
 参数注入：
 |  名称   | 说明  | 类型 |
 |  ----  | ----  | ---- |
-| values | subscription设置的所有表单项值，默认值为initialValues | {[key:string]:string\|number\|boolean} |
+| values | subscription设置的所有表单项值，默认值为initialValues | {[key:string]: string\|number\|boolean} |
 | errors | subscription设置的所有表单项错误信息  | {[key:string]:string} |
 
 ---- 
@@ -265,7 +265,7 @@ onButtonClick = () => {
 
 ```js
 import React from 'react';
-import ReactSuperForm from 'react-super-form';
+import ReactSuperForm from '@tingxin_cy/react-super-form';
 import { Input, Radio, Button } from 'antd';
 
 class FormDemo extends React.Component {
