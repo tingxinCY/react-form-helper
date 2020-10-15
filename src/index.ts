@@ -7,7 +7,7 @@ const SchemaTemp:any = Schema;
 SchemaTemp.warning = function () {};
 
 // 工厂函数参数对象
-export interface IReactSuperFormOptions {
+export interface IReactFormHelperOptions {
   onValueChange?(name: string, value: any, error: string): void;
   onErrorsChange?(errors: {[fieldName:string]: string}|null): void;
 }
@@ -69,7 +69,7 @@ export type TBindFormSpyFunction = (
 // 解绑formSpy
 export type TUnbindFormSpyFunction = (uniqueId:string) => void;
 
-class ReactSuperForm {
+class ReactFormHelper {
   public Field: TFieldComponent;
 
   public FormSpy: TFormSpyComponent;
@@ -80,13 +80,13 @@ class ReactSuperForm {
   // 错误信息缓存，用来与当前错误信息做对比，判断是否触发hook
   private _errorsCache:TErrorsCollection = {};
 
-  // ReactSuperForm实例参数
-  private _options:IReactSuperFormOptions = {};
+  // ReactFormHelper实例参数
+  private _options:IReactFormHelperOptions = {};
 
   // formSpy对象集合
   private _formSpys:TFormSpysCollection = {};
 
-  constructor(options?:IReactSuperFormOptions) {
+  constructor(options?:IReactFormHelperOptions) {
     options && (this._options = options);
 
     this.Field = createField({
@@ -149,7 +149,7 @@ class ReactSuperForm {
   /**
    * 实时获取values
    *
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   public getValues() {
     const { values } = this._processData();
@@ -168,7 +168,7 @@ class ReactSuperForm {
   /**
    * 重置表单控件，还原至初始value、error状态，支持指定表单name，否则对整体表单执行
    *
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   public reset(name?:string) {
     if (name) {
@@ -186,7 +186,7 @@ class ReactSuperForm {
    *
    * @private
    * @returns [fieldValues, fieldErrors] 扁平化的values和errors
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _getFormState():{
     fieldValues: {[key:string]:TValue},
@@ -210,7 +210,7 @@ class ReactSuperForm {
    * @private
    * @param {string} name
    * @returns {string}
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _getUniqueIdByName(name:string):string {
     if (name) {
@@ -230,7 +230,7 @@ class ReactSuperForm {
    *
    * @private
    * @type {TOnFieldValueChange}
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _onFieldValueChange:TOnFieldValueChangeFunction = async (
     uniqueId: string,
@@ -297,7 +297,7 @@ class ReactSuperForm {
    * 更新表单控件校验规则
    *
    * @private
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _setFieldRules = (uniqueId:string, rules: IRule[]) => {
     if (this._fields[uniqueId]) {
@@ -395,7 +395,7 @@ class ReactSuperForm {
    * 触发表单错误信息更新处理逻辑
    *
    * @private
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _emitErrorsChange(newErrors: TErrorsCollection) {
     // 若设置了全局钩子，则在errors变更之后触发hook
@@ -431,7 +431,7 @@ class ReactSuperForm {
    *
    * @private
    * @type {TBindFormSpyFunction}
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _bindFormSpy:TBindFormSpyFunction = (
     uniqueId, formSpyComponent,
@@ -447,7 +447,7 @@ class ReactSuperForm {
    *
    * @private
    * @type {TUnbindFormSpyFunction}
-   * @memberof ReactSuperForm
+   * @memberof ReactFormHelper
    */
   private _unbindFormSpy:TUnbindFormSpyFunction = (uniqueId) => {
     if (this._formSpys[uniqueId]) {
@@ -456,4 +456,4 @@ class ReactSuperForm {
   };
 }
 
-export default ReactSuperForm;
+export default ReactFormHelper;
