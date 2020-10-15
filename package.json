@@ -1,6 +1,6 @@
 {
-  "name": "@tingxin_cy/react-super-form",
-  "version": "1.0.1",
+  "name": "@tingxin_cy/react-form-helper",
+  "version": "1.0.2",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "browser": "dist/index.umd.js",
@@ -39,6 +39,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:tingxinCY/react-super-form.git"
+    "url": "git@github.com:tingxinCY/react-form-helper.git"
   }
 }

@@ -1,4 +1,4 @@
-# @tingxin_cy/react-super-form
+# @tingxin_cy/react-form-helper
 
 React表单解决方案，专注解决“数据采集”和“数据校验”两大表单核心需求，采用分布式设计从根源解决表格性能问题，同时该方案与UI解耦适用于任何UI框架或者原生UI，支持任何复杂的表单需求。
 
@@ -14,23 +14,23 @@ React表单解决方案，专注解决“数据采集”和“数据校验”两
 ## 安装
 
 ```js
-yarn add @tingxin_cy/react-super-form -S
+yarn add @tingxin_cy/react-form-helper -S
 ```
 or
 ```js
-yarn add @tingxin_cy/react-super-form -S
+yarn add @tingxin_cy/react-form-helper -S
 ```
 
 ## 导入
 ```js
-import ReactSuperForm from '@tingxin_cy/react-super-form';
+import ReactFormHelper from '@tingxin_cy/react-form-helper';
 
 const { Field, FormSpy } = formInstance; // 核心组件
 ```
 
-## Class：ReactSuperForm
+## Class：ReactFormHelper
 ```js
-const formInstance = new ReactSuperForm({
+const formInstance = new ReactFormHelper({
   onValueChange: (name, value, error) => {},
   onErrorsChange: (errors) => {
     this.setState({
@@ -265,13 +265,13 @@ onButtonClick = () => {
 
 ```js
 import React from 'react';
-import ReactSuperForm from '@tingxin_cy/react-super-form';
+import ReactFormHelper from '@tingxin_cy/react-form-helper';
 import { Input, Radio, Button } from 'antd';
 
 class FormDemo extends React.Component {
   constructor(props) {
     super(props);
-    this.formInstance = new ReactSuperForm({
+    this.formInstance = new ReactFormHelper({
       // 表单全局hook
       onValueChange(name, value, error) {
         console.log(name, value, error);
