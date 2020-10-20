@@ -250,11 +250,14 @@ onButtonClick = () => {
 }
 ```
 
-### - reset():void;
-表单重置功能，清除所有error，复位至初始value值（Field组件上设置的defaultValue属性值）
+### - reset(fieldName?:string):void;
+表单重置功能，清除error信息，复位至defaultValue值，若未设置fieldName，则复位所有表单项
 ```js
 onButtonClick = () => {
-  const values = this.formInstance.reset();
+  // 重置指定表单项
+  this.formInstance.reset('fieldName');
+  // 重置所有表单项
+  this.formInstance.reset();
 }
 ```
 
