@@ -9,7 +9,6 @@ React表单解决方案，专注解决“数据采集”和“数据校验”两
 - 无UI侵入，适用于任何UI框架或者原生UI，一次学习到处使用。
 - 支持多表单实例并存，可并列使用也可嵌套使用。
 - 极简API设计，仅对外输出2个的组件和5个方法。
-- 体积小，gzip前 size < 30k
 - 总之：适用于任何复杂程度的动态表单场景。
 
 ## 安装
@@ -292,7 +291,7 @@ class FormDemo extends React.Component {
         asyncValue: "内容错误，请检查。",
         like.0: "请填写第一个爱好",
         like.1: "请填写第二个爱好",
-        like.3: "请填写第三个爱好"
+        like.2: "请填写第三个爱好"
       }
       {
         userinfo: {
@@ -456,7 +455,7 @@ class FormDemo extends React.Component {
         </Field>
 
         <Field
-          name="like.3"
+          name="like.2"
           defaultValue=""
           rules={[
             { type: 'string', required: true, message: '请填写第三个爱好' }
