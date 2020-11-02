@@ -39,13 +39,16 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
       this.init();
     }
 
-    init = () => {
-      options.bindFormSpy(this._uniqueId, this);
-    };
-
     componentWillUnmount() {
       options.unbindFormSpy(this._uniqueId);
     }
+
+    /**
+     * 初始化函数
+     */
+    init = () => {
+      options.bindFormSpy(this._uniqueId, this);
+    };
 
     /**
      * 订阅表单项值和错误信息变更的回调函数
@@ -54,13 +57,31 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
      * @param value 表单项值
      * @param error 表单项错误信息
      */
-    public onValueChange = (name:string, value:TValue, error:string) => {
-      if (!this.props.subscription || this.props.subscription?.[name]) {
-        this.setState(({ values, errors }) => ({
-          values: { ...values, [name]: value },
-          errors: { ...errors, [name]: error },
-        }));
+    public onFieldChange = (name:string, value:TValue, error:string) => {
+      // 校验是否订阅该表单项
+      if (this._isSubscribe(name)) {
+        // 校验value是否更新
+        if (this.state.values[name] !== value) {
+          this.setState(({ values }) => ({
+            values: { ...values, [name]: value },
+          }));
+        }
+        // 校验error是否更新
+        if ((this.state.errors?.[name] ?? '') !== error) {
+          this.setState(({ errors }) => ({
+            errors: { ...errors, [name]: error },
+          }));
+        }
       }
+    };
+
+    /**
+     * 表单项重置，订阅该表单项的spy也要相应的重置
+     * @param name 表单项名称
+     */
+    public onFieldReset = (name:string) => {
+      const { initialValues = {} } = this.props;
+      this.onFieldChange(name, initialValues[name], '');
     };
 
     render() {
@@ -69,6 +90,7 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
         const formSpyProps = {
           values: { ...this.state.values },
           errors: { ...this.state.errors },
+          initialValues: { ...this.props.initialValues },
         };
         return children(formSpyProps);
       } else if (children) {
@@ -76,6 +98,14 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
       }
       return null;
     }
+
+    /**
+     * 是否订阅该表单项
+     * @param name 表单项名称
+     */
+    private _isSubscribe = (name:string) => {
+      return !this.props.subscription || this.props.subscription?.[name];
+    };
   };
 };
 

@@ -189,8 +189,9 @@ const { FormSpy } = formInstance;
 参数注入：
 |  名称   | 说明  | 类型 |
 |  ----  | ----  | ---- |
-| values | subscription设置的所有表单项值，默认值为initialValues | {[key:string]: string\|number\|boolean} |
+| values | subscription所订阅的相关表单项值，动态更新，默认值为initialValues | {[key:string]: string\|number\|boolean} |
 | errors | subscription设置的所有表单项错误信息  | {[key:string]:string} |
+| initialValues | initialValues属性值，用于透传给FormSpy内部的子组件  | {[key:string]:string} |
 
 ---- 
 

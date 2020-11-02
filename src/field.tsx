@@ -91,21 +91,19 @@ const createField = (options: IFieldOptions):TFieldComponent => {
 
     /**
      * 初始化绑定控件，用于组件mount时机和reset时机
-     * @param {Boolean} didMount 是否是初始化加载
+     * @param {Boolean} constructor 是否是初始化加载
      */
-    public init = (didMount?:boolean) => {
+    public init = (constructor?:boolean) => {
       const { name, value, defaultValue, rules } = this.props;
       const initValue = (value === undefined ? defaultValue : value) ?? '';
-      if (didMount) {
-        this.state = {
-          value: initValue,
-          error: '',
-        };
+      const state = {
+        value: initValue,
+        error: '',
+      };
+      if (constructor) {
+        this.state = state;
       } else {
-        this.setState({
-          value: initValue,
-          error: '',
-        });
+        this.setState(state);
       }
       this.name = name;
       // 表单组件绑定
