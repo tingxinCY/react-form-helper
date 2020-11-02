@@ -9,7 +9,6 @@ React表单解决方案，专注解决“数据采集”和“数据校验”两
 - 无UI侵入，适用于任何UI框架或者原生UI，一次学习到处使用。
 - 支持多表单实例并存，可并列使用也可嵌套使用。
 - 极简API设计，仅对外输出2个的组件和5个方法。
-- 体积小，gzip前 size < 30k
 - 总之：适用于任何复杂程度的动态表单场景。
 
 ## 安装
@@ -190,8 +189,9 @@ const { FormSpy } = formInstance;
 参数注入：
 |  名称   | 说明  | 类型 |
 |  ----  | ----  | ---- |
-| values | subscription设置的所有表单项值，默认值为initialValues | {[key:string]: string\|number\|boolean} |
+| values | subscription所订阅的相关表单项值，动态更新，默认值为initialValues | {[key:string]: string\|number\|boolean} |
 | errors | subscription设置的所有表单项错误信息  | {[key:string]:string} |
+| initialValues | initialValues属性值，用于透传给FormSpy内部的子组件  | {[key:string]:string} |
 
 ---- 
 
@@ -251,11 +251,14 @@ onButtonClick = () => {
 }
 ```
 
-### - reset():void;
-表单重置功能，清除所有error，复位至初始value值（Field组件上设置的defaultValue属性值）
+### - reset(fieldName?:string):void;
+表单重置功能，清除error信息，复位至defaultValue值，若未设置fieldName，则复位所有表单项
 ```js
 onButtonClick = () => {
-  const values = this.formInstance.reset();
+  // 重置指定表单项
+  this.formInstance.reset('fieldName');
+  // 重置所有表单项
+  this.formInstance.reset();
 }
 ```
 
@@ -292,7 +295,7 @@ class FormDemo extends React.Component {
         asyncValue: "内容错误，请检查。",
         like.0: "请填写第一个爱好",
         like.1: "请填写第二个爱好",
-        like.3: "请填写第三个爱好"
+        like.2: "请填写第三个爱好"
       }
       {
         userinfo: {
@@ -456,7 +459,7 @@ class FormDemo extends React.Component {
         </Field>
 
         <Field
-          name="like.3"
+          name="like.2"
           defaultValue=""
           rules={[
             { type: 'string', required: true, message: '请填写第三个爱好' }

@@ -171,14 +171,25 @@ class ReactFormHelper {
    * @memberof ReactFormHelper
    */
   public reset(name?:string) {
+    let uniqueIds:string[] = [];
     if (name) {
       const uniqueId = this._getUniqueIdByName(name);
-      this._fields[uniqueId].fieldComponent.reset();
+      if (uniqueId) {
+        uniqueIds.push(uniqueId);
+      }
     } else {
-      Object.keys(this._fields).forEach((uniqueId) => {
-        this._fields[uniqueId].fieldComponent.reset();
-      });
+      uniqueIds = Object.keys(this._fields);
     }
+
+    uniqueIds.forEach((fieldUniqueId) => {
+      this._fields[fieldUniqueId].fieldComponent.reset();
+
+      // 触发FormSpy重绘
+      Object.keys(this._formSpys).forEach(spyUniqueId => {
+        const fieldName = this._fields[fieldUniqueId].name;
+        this._formSpys[spyUniqueId].formSpyComponent.onFieldReset(fieldName);
+      });
+    });
   }
 
   /**
@@ -214,11 +225,9 @@ class ReactFormHelper {
    */
   private _getUniqueIdByName(name:string):string {
     if (name) {
-      for (const uniqueId in this._fields) {
-        if (Object.hasOwnProperty.call(this._fields, uniqueId)) {
-          if (this._fields[uniqueId].name === name) {
-            return uniqueId;
-          }
+      for (const uniqueId of Object.keys(this._fields)) {
+        if (this._fields[uniqueId].name === name) {
+          return uniqueId;
         }
       }
     }
@@ -241,7 +250,7 @@ class ReactFormHelper {
 
     // 触发FormSpy重绘
     Object.keys(this._formSpys).forEach(uid => {
-      this._formSpys[uid].formSpyComponent.onValueChange(name, value, validationResult.error);
+      this._formSpys[uid].formSpyComponent.onFieldChange(name, value, validationResult.error);
     });
 
     // 表单全局value change hook
