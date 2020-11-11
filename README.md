@@ -233,7 +233,7 @@ onSubmit() {
 ```
 
 #### - getValues():Object
-实时收集当前状态下表单数据
+实时获取当前状态下的表单值（未按照namePath进行解析）
 ```js
 onButtonClick = () => {
   const values = this.formInstance.getValues();
@@ -248,6 +248,15 @@ onButtonClick = () => {
 onButtonClick = () => {
   const errors = this.formInstance.getErrors();
   console.log(errors);
+}
+```
+
+#### - getParsedValues():Object
+获取当前状态下的表单解析值（按照namePath进行解析）
+```js
+onButtonClick = () => {
+  const values = this.formInstance.getParsedValues();
+  console.log(values);
 }
 ```
 

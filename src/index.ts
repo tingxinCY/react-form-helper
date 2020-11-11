@@ -147,13 +147,21 @@ class ReactFormHelper {
   }
 
   /**
-   * 实时获取values
+   * 获取解析之后的value（按照namePath进行解析）
    *
    * @memberof ReactFormHelper
    */
-  public getValues() {
+  public getParsedValues() {
     const { values } = this._processData();
     return values;
+  }
+
+  /**
+   * 实时获取当前状态下的所有表单项值
+   */
+  public getValues():{[key:string]:TValue} {
+    const { fieldValues } = this._getFormState();
+    return fieldValues;
   }
 
   /**
