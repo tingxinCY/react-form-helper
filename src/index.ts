@@ -151,7 +151,7 @@ class ReactFormHelper {
    *
    * @memberof ReactFormHelper
    */
-  public getParsedValues() {
+  public getParsedValues():any {
     const { values } = this._processData();
     return values;
   }
