@@ -232,12 +232,39 @@ onSubmit() {
 </Field>
 ```
 
-#### - getValues():Object
-实时收集当前状态下表单数据
+#### - getValues(needParse:boolean):Object
+实时获取当前状态下的表单值，支持获取扁平化数据和结构化数据
+##### 参数
+|  名称   | 说明  | 类型 | 默认 |
+|  ----  | ----  | ---- | ---- |
+| needParse | 是否需要基于namePath进行表单数据解析 | boolean | false |
+##### demo
 ```js
 onButtonClick = () => {
   const values = this.formInstance.getValues();
   console.log(values);
+  /* needParse = false时，获取扁平化数据
+  {
+    "userinfo.name": "张三",
+    "userinfo.gender": "male",
+    "age": 20,
+    "like.0": "足球",
+    "like.1": "篮球",
+    "like.2": "排球",
+  }
+  */
+  const parsedValues = this.formInstance.getValues(true);
+  console.log(parsedValues);
+  /* needParse = true时，获取结构化数据
+  {
+    userinfo: {
+      name: "张三”,
+      gender: "male"
+    },
+    age: 20,
+    like: [ "足球", "篮球", "排球"]
+  }
+  */
 }
 ```
 

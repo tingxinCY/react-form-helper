@@ -147,13 +147,17 @@ class ReactFormHelper {
   }
 
   /**
-   * 实时获取values
-   *
-   * @memberof ReactFormHelper
+   * 实时获取当前状态下的所有表单项值，支持扁平化数据和结构化数据
+   * @param {boolean} needParse 是否需要按照namePath进行结构化解析
    */
-  public getValues() {
-    const { values } = this._processData();
-    return values;
+  public getValues(needParse:boolean = false):{[key:string]:TValue} {
+    if (needParse) {
+      const { values } = this._processData();
+      return values;
+    } else {
+      const { fieldValues } = this._getFormState();
+      return fieldValues;
+    }
   }
 
   /**
