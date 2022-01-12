@@ -3,13 +3,13 @@ import Schema, { Rules, ValidateError } from 'async-validator';
 import createFormSpy, { TFormSpyComponent } from './formSpy';
 
 // async-validator的types中不包含warning，直接设置会报错
-const SchemaTemp:any = Schema;
+const SchemaTemp: any = Schema;
 SchemaTemp.warning = function () {};
 
 // 工厂函数参数对象
 export interface IReactFormHelperOptions {
   onValueChange?(name: string, value: any, error: string): void;
-  onErrorsChange?(errors: {[fieldName:string]: string}|null): void;
+  onErrorsChange?(errors: { [fieldName: string]: string } | null): void;
 }
 
 // 表单项对象
@@ -25,7 +25,7 @@ interface IFieldObject {
 export type TFieldsCollection = Record<string, IFieldObject>;
 
 // 表单项错误信息集合
-type TErrorsCollection = {[fieldName:string]: string}|null;
+type TErrorsCollection = { [fieldName: string]: string } | null;
 
 // 表单校验结果对象
 type TResultDataObject = {
@@ -38,7 +38,7 @@ export type TBindFieldFunction = (
   uniqueId: string,
   name: string,
   value: TValue,
-  rules: IRule[]|undefined,
+  rules: IRule[] | undefined,
   fieldComponent: any,
 ) => void;
 
@@ -49,8 +49,8 @@ export type TUnbindFieldFunction = (uniqueId: string) => void;
 export type TOnFieldValueChangeFunction = (
   uniqueId: string,
   name: string,
-  value: TValue
-) => Promise<{error:string}>;
+  value: TValue,
+) => Promise<{ error: string }>;
 
 // formSpy数据对象
 type TFormSpyObject = {
@@ -61,13 +61,10 @@ type TFormSpyObject = {
 type TFormSpysCollection = Record<string, TFormSpyObject>;
 
 // 绑定formSpy
-export type TBindFormSpyFunction = (
-  uniqueId:string,
-  formSpyComponent:any
-) => void;
+export type TBindFormSpyFunction = (uniqueId: string, formSpyComponent: any) => void;
 
 // 解绑formSpy
-export type TUnbindFormSpyFunction = (uniqueId:string) => void;
+export type TUnbindFormSpyFunction = (uniqueId: string) => void;
 
 class ReactFormHelper {
   public Field: TFieldComponent;
@@ -75,18 +72,18 @@ class ReactFormHelper {
   public FormSpy: TFormSpyComponent;
 
   // 表单项对象集合
-  private _fields:TFieldsCollection = {};
+  private _fields: TFieldsCollection = {};
 
   // 错误信息缓存，用来与当前错误信息做对比，判断是否触发hook
-  private _errorsCache:TErrorsCollection = {};
+  private _errorsCache: TErrorsCollection = {};
 
   // ReactFormHelper实例参数
-  private _options:IReactFormHelperOptions = {};
+  private _options: IReactFormHelperOptions = {};
 
   // formSpy对象集合
-  private _formSpys:TFormSpysCollection = {};
+  private _formSpys: TFormSpysCollection = {};
 
-  constructor(options?:IReactFormHelperOptions) {
+  constructor(options?: IReactFormHelperOptions) {
     options && (this._options = options);
 
     this.Field = createField({
@@ -121,9 +118,9 @@ class ReactFormHelper {
    * 验证全部表单项
    * @param callback 表单验证的回调函数
    */
-  public async validateFields():Promise<TResultDataObject> {
-    const promiseArray:Array<Promise<any>> = [];
-    Object.keys(this._fields).forEach(uniqueId => {
+  public async validateFields(): Promise<TResultDataObject> {
+    const promiseArray: Array<Promise<any>> = [];
+    Object.keys(this._fields).forEach((uniqueId) => {
       /* 对表单项逐一进行校验，避免因为一个async validation而导致整体校验结果进入promise中，
       在promise中进行批量的field setState error会导致同步执行，触发性能问题，而逐一校验可保证同步规则同步校验，
       批量的同步校验导致的批量的field setState error可以批量异步执行，保证性能，个别的async校验导致setState的同步执行，将性能损耗降到最低 */
@@ -150,7 +147,7 @@ class ReactFormHelper {
    * 实时获取当前状态下的所有表单项值，支持扁平化数据和结构化数据
    * @param {boolean} needParse 是否需要按照namePath进行结构化解析
    */
-  public getValues(needParse:boolean = false):{[key:string]:TValue} {
+  public getValues(needParse: boolean = false): { [key: string]: TValue } {
     if (needParse) {
       const { values } = this._processData();
       return values;
@@ -164,7 +161,7 @@ class ReactFormHelper {
    * 实时获取当前状态下的所有错误信息
    * 备注：并不触发表单整体的错误校验，执行表单整体校验请使用validateFields方法
    */
-  public getErrors():TErrorsCollection {
+  public getErrors(): TErrorsCollection {
     const { fieldErrors } = this._getFormState();
     return Object.keys(fieldErrors).length ? fieldErrors : null;
   }
@@ -174,8 +171,8 @@ class ReactFormHelper {
    *
    * @memberof ReactFormHelper
    */
-  public reset(name?:string) {
-    let uniqueIds:string[] = [];
+  public reset(name?: string) {
+    let uniqueIds: string[] = [];
     if (name) {
       const uniqueId = this._getUniqueIdByName(name);
       if (uniqueId) {
@@ -189,7 +186,7 @@ class ReactFormHelper {
       this._fields[fieldUniqueId].fieldComponent.reset();
 
       // 触发FormSpy重绘
-      Object.keys(this._formSpys).forEach(spyUniqueId => {
+      Object.keys(this._formSpys).forEach((spyUniqueId) => {
         const fieldName = this._fields[fieldUniqueId].name;
         this._formSpys[spyUniqueId].formSpyComponent.onFieldReset(fieldName);
       });
@@ -203,13 +200,13 @@ class ReactFormHelper {
    * @returns [fieldValues, fieldErrors] 扁平化的values和errors
    * @memberof ReactFormHelper
    */
-  private _getFormState():{
-    fieldValues: {[key:string]:TValue},
-    fieldErrors: {[key:string]:string}
+  private _getFormState(): {
+    fieldValues: { [key: string]: TValue };
+    fieldErrors: { [key: string]: string };
   } {
-    const fieldValues:{[key:string]:TValue} = {};
-    const fieldErrors:{[key:string]:string} = {};
-    Object.keys(this._fields).forEach(uniqueId => {
+    const fieldValues: { [key: string]: TValue } = {};
+    const fieldErrors: { [key: string]: string } = {};
+    Object.keys(this._fields).forEach((uniqueId) => {
       const obj = this._fields[uniqueId];
       fieldValues[obj.name] = obj.value;
       if (obj.error) {
@@ -227,7 +224,7 @@ class ReactFormHelper {
    * @returns {string}
    * @memberof ReactFormHelper
    */
-  private _getUniqueIdByName(name:string):string {
+  private _getUniqueIdByName(name: string): string {
     if (name) {
       for (const uniqueId of Object.keys(this._fields)) {
         if (this._fields[uniqueId].name === name) {
@@ -245,7 +242,7 @@ class ReactFormHelper {
    * @type {TOnFieldValueChange}
    * @memberof ReactFormHelper
    */
-  private _onFieldValueChange:TOnFieldValueChangeFunction = async (
+  private _onFieldValueChange: TOnFieldValueChangeFunction = async (
     uniqueId: string,
     name: string,
     value: TValue,
@@ -253,7 +250,7 @@ class ReactFormHelper {
     const validationResult = await this._validateSingleField(uniqueId, value);
 
     // 触发FormSpy重绘
-    Object.keys(this._formSpys).forEach(uid => {
+    Object.keys(this._formSpys).forEach((uid) => {
       this._formSpys[uid].formSpyComponent.onFieldChange(name, value, validationResult.error);
     });
 
@@ -261,7 +258,7 @@ class ReactFormHelper {
     this._options.onValueChange && this._options.onValueChange(name, value, validationResult.error);
 
     // 当设置了onErrorsChange Hook，同时当前表单项error发生了变化，则触发全局errorsChange hook
-    const cacheError = this._errorsCache ? (this._errorsCache[name] || '') : '';
+    const cacheError = this._errorsCache ? this._errorsCache[name] || '' : '';
     if (this._options.onErrorsChange && validationResult.error !== cacheError) {
       const newErrors = this.getErrors();
       this._emitErrorsChange(newErrors);
@@ -278,7 +275,7 @@ class ReactFormHelper {
    * @param rules 字段验证规则，array
    * @param onChange 表单项value修改函数
    */
-  private _bindField:TBindFieldFunction = (
+  private _bindField: TBindFieldFunction = (
     uniqueId: string,
     name: string,
     value: TValue,
@@ -286,7 +283,7 @@ class ReactFormHelper {
     fieldComponent,
   ) => {
     if (!name) return;
-    const field:IFieldObject = {
+    const field: IFieldObject = {
       name,
       value,
       rules,
@@ -300,7 +297,7 @@ class ReactFormHelper {
    * 解绑表单字段
    * @param uniqueId 唯一ID,uniqueId
    */
-  private _unbindField:TUnbindFieldFunction = (uniqueId:string) => {
+  private _unbindField: TUnbindFieldFunction = (uniqueId: string) => {
     if (this._fields[uniqueId]) {
       delete this._fields[uniqueId];
     }
@@ -312,7 +309,7 @@ class ReactFormHelper {
    * @private
    * @memberof ReactFormHelper
    */
-  private _setFieldRules = (uniqueId:string, rules: IRule[]) => {
+  private _setFieldRules = (uniqueId: string, rules: IRule[]) => {
     if (this._fields[uniqueId]) {
       this._fields[uniqueId].rules = rules;
     }
@@ -323,7 +320,7 @@ class ReactFormHelper {
    * @param uniqueId 唯一Id
    * @param value 字段值
    */
-  private async _validateSingleField(uniqueId: string, value: TValue): Promise<{error: string}> {
+  private async _validateSingleField(uniqueId: string, value: TValue): Promise<{ error: string }> {
     if (!this._fields[uniqueId]) return Promise.reject();
     this._fields[uniqueId].value = value;
     const descriptor = {
@@ -342,10 +339,10 @@ class ReactFormHelper {
    * 处理context中的数据，产出errors、values
    * @param {Object} fields 源数据表单字段
    */
-  private _processData():TResultDataObject {
-    const errors:TErrorsCollection = {};
-    const values:any = {};
-    Object.keys(this._fields).forEach(uniqueId => {
+  private _processData(): TResultDataObject {
+    const errors: TErrorsCollection = {};
+    const values: any = {};
+    Object.keys(this._fields).forEach((uniqueId) => {
       // debugger;
       const field = this._fields[uniqueId];
       if (field.error) {
@@ -357,7 +354,10 @@ class ReactFormHelper {
       let tempValues = values;
       for (let i = 1; i < namePath.length; i++) {
         // 如果有下一级path，当前级必须为object、array，如果不是，则可能是用户设定的namepath有冲突，后面path规则覆盖前面
-        if (tempValues[namePath[i - 1]] === undefined || typeof tempValues[namePath[i - 1]] !== 'object') {
+        if (
+          tempValues[namePath[i - 1]] === undefined ||
+          typeof tempValues[namePath[i - 1]] !== 'object'
+        ) {
           const isNum = !Number.isNaN(Number(namePath[i]));
           tempValues[namePath[i - 1]] = isNum ? [] : {};
         }
@@ -379,9 +379,9 @@ class ReactFormHelper {
    * @param cb 回调函数
    */
   private _doValidate(
-    descriptor:{[key:string]:IRule[]},
-    source:{[key:string]: TValue},
-  ):Promise<null> {
+    descriptor: { [key: string]: IRule[] },
+    source: { [key: string]: TValue },
+  ): Promise<null> {
     return new Promise((resolve) => {
       Object.keys(descriptor).forEach((uniqueId) => {
         // 先清空当前字段的error，若后续校验未报error，则相当于清除错误
@@ -390,16 +390,19 @@ class ReactFormHelper {
 
       // 执行校验
       const validator = new Schema(descriptor as Rules);
-      validator.validate(source, undefined, (errors:ValidateError[]) => {
+      validator.validate(source, undefined, (errors: ValidateError[]) => {
         if (errors) {
           errors.forEach((errorItem) => {
             if (!this._fields[errorItem.field].error) {
-              this._fields[errorItem.field].error = errorItem.message || 'This is the default error message';
-              this._fields[errorItem.field].fieldComponent.updateError(this._fields[errorItem.field].error);
+              this._fields[errorItem.field].error =
+                errorItem.message || 'This is the default error message';
+              this._fields[errorItem.field].fieldComponent.updateError(
+                this._fields[errorItem.field].error,
+              );
             }
           });
         }
-        resolve();
+        resolve(null);
       });
     });
   }
@@ -446,10 +449,8 @@ class ReactFormHelper {
    * @type {TBindFormSpyFunction}
    * @memberof ReactFormHelper
    */
-  private _bindFormSpy:TBindFormSpyFunction = (
-    uniqueId, formSpyComponent,
-  ) => {
-    const formSpy:TFormSpyObject = {
+  private _bindFormSpy: TBindFormSpyFunction = (uniqueId, formSpyComponent) => {
+    const formSpy: TFormSpyObject = {
       formSpyComponent,
     };
     this._formSpys[uniqueId] = formSpy;
@@ -462,7 +463,7 @@ class ReactFormHelper {
    * @type {TUnbindFormSpyFunction}
    * @memberof ReactFormHelper
    */
-  private _unbindFormSpy:TUnbindFormSpyFunction = (uniqueId) => {
+  private _unbindFormSpy: TUnbindFormSpyFunction = (uniqueId) => {
     if (this._formSpys[uniqueId]) {
       delete this._formSpys[uniqueId];
     }

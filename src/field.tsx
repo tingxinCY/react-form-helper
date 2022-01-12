@@ -2,34 +2,43 @@ import React from 'react';
 import { TBindFieldFunction, TUnbindFieldFunction, TOnFieldValueChangeFunction } from './index';
 
 export interface IRule {
-  type?: 'string'|'number'|'integer'|'float'|'boolean'|'url'|'email'|'enum';
+  type?: 'string' | 'number' | 'integer' | 'float' | 'boolean' | 'url' | 'email' | 'enum';
   required?: boolean;
-  pattern?: RegExp|string;
+  pattern?: RegExp | string;
   min?: number;
   max?: number;
   length?: number;
   whitespace?: boolean;
   asyncValidator?: (
-    rule: {[key:string]: IRule|IRule[]},
-    value:any,
-    callback:(error?: string) => void,
-    source: {[key: string]: any}
+    rule: { [key: string]: IRule | IRule[] },
+    value: any,
+    callback: (error?: string) => void,
+    source: { [key: string]: any },
   ) => void;
   validator?: (
-    rule: {[key: string]: IRule|IRule[]},
+    rule: { [key: string]: IRule | IRule[] },
     value: any,
-    callback: (error?: string)=>void,
-    source: {[key: string]: any}
+    callback: (error?: string) => void,
+    source: { [key: string]: any },
   ) => void;
   message?: string;
 }
-export type TValue = string|number|boolean;
+export type TValue = string | number | boolean;
 
 interface IFieldOptions {
   bindField: TBindFieldFunction;
   unbindField: TUnbindFieldFunction;
   onFieldValueChange: TOnFieldValueChangeFunction;
   setFieldRules(uniqueId: string, rules: IRule[]): void;
+}
+
+/**
+ * Field组件的函数类型子节点的类型
+ */
+export interface IFieldArguments {
+  value: any;
+  error: string;
+  onChange: (value: TValue) => Promise<{ value: TValue; error: string }>;
 }
 
 interface IFieldProps {
@@ -46,15 +55,15 @@ interface IState {
   error: string;
 }
 
-const createField = (options: IFieldOptions):TFieldComponent => {
+const createField = (options: IFieldOptions): TFieldComponent => {
   let fieldIndex = 0;
 
   return class extends React.Component<IFieldProps, IState> {
-    private uniqueId!:string;
+    private uniqueId!: string;
 
     private name = '';
 
-    constructor(props:IFieldProps) {
+    constructor(props: IFieldProps) {
       super(props);
 
       fieldIndex += 1;
@@ -63,7 +72,7 @@ const createField = (options: IFieldOptions):TFieldComponent => {
       this.init(true);
     }
 
-    componentDidUpdate(prevProps:IFieldProps) {
+    componentDidUpdate(prevProps: IFieldProps) {
       const { name, value, rules } = this.props;
       // name变化，该Field重新绑定
       if (name !== prevProps.name) {
@@ -93,7 +102,7 @@ const createField = (options: IFieldOptions):TFieldComponent => {
      * 初始化绑定控件，用于组件mount时机和reset时机
      * @param {Boolean} constructor 是否是初始化加载
      */
-    public init = (constructor?:boolean) => {
+    public init = (constructor?: boolean) => {
       const { name, value, defaultValue, rules } = this.props;
       const initValue = (value === undefined ? defaultValue : value) ?? '';
       const state = {
@@ -115,7 +124,7 @@ const createField = (options: IFieldOptions):TFieldComponent => {
      * @param {Value} value
      * @returns {value: TValue, error: string} 当前表单项的value值和error值
      */
-    public onChange = (value: TValue):Promise<{value:TValue, error: string}> => {
+    public onChange = (value: TValue): Promise<{ value: TValue; error: string }> => {
       // 受控组件模式 或者 value没有变更
       if (this.props.value !== undefined || value === this.state.value) {
         return Promise.resolve({
@@ -131,11 +140,14 @@ const createField = (options: IFieldOptions):TFieldComponent => {
       return new Promise((resolve) => {
         options.onFieldValueChange(this.uniqueId, this.name, value).then(({ error }) => {
           if (error !== this.state.error) {
-            this.setState({
-              error,
-            }, () => {
-              resolve({ value, error });
-            });
+            this.setState(
+              {
+                error,
+              },
+              () => {
+                resolve({ value, error });
+              },
+            );
           } else {
             resolve({ value, error });
           }
@@ -147,7 +159,7 @@ const createField = (options: IFieldOptions):TFieldComponent => {
      * 修改error信息
      * @param {String} error 错误信息
      */
-    public updateError = (error:string) => {
+    public updateError = (error: string) => {
       if (error !== this.state.error) {
         this.setState({
           error,
@@ -165,12 +177,12 @@ const createField = (options: IFieldOptions):TFieldComponent => {
     render() {
       const { children, value } = this.props;
       if (typeof children === 'function') {
-        const props = {
+        const _props: IFieldArguments = {
           value: value === undefined ? this.state.value : value,
           error: this.state.error,
           onChange: this.onChange,
         };
-        return children(props);
+        return children(_props);
       } else if (children) {
         return children;
       }

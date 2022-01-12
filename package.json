@@ -1,7 +1,7 @@
 {
   "name": "@tingxin_cy/react-form-helper",
   "version": "2.1.0",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.esm.js",
   "module": "dist/index.esm.js",
   "browser": "dist/index.umd.js",
   "types": "types/index.d.ts",
