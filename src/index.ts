@@ -1,3 +1,4 @@
+import React from 'react';
 import createField, { IRule, TValue, TFieldComponent } from './field';
 import Schema, { Rules, ValidateError } from 'async-validator';
 import createFormSpy, { TFormSpyComponent } from './formSpy';
@@ -471,3 +472,15 @@ class ReactFormHelper {
 }
 
 export default ReactFormHelper;
+
+/**
+ * 自定义hook
+ * @param options 工厂函数参数对象
+ * @returns
+ */
+export const useForm = (options?: IReactFormHelperOptions) => {
+  const instance = React.useMemo(() => {
+    return new ReactFormHelper(options);
+  }, []);
+  return instance;
+};
