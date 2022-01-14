@@ -33,7 +33,7 @@ interface IFieldOptions {
 }
 
 /**
- * Field组件的函数类型子节点的类型
+ * Field组件的函数类型子节点的参数类型
  */
 export interface IFieldArguments {
   value: any;

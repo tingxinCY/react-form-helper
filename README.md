@@ -183,37 +183,22 @@ const { FormSpy } = formInstance;
 
 ```js
 <>
-  <Field
-    name="province"
-    defaultValue="beijing"
-  >
-    {({value, onChange}) => (
-      <ProvinceSelect
-        value={value}
-        onChange={onChange}
-      />
-    )}
+  <Field name='province' defaultValue='beijing'>
+    {({ value, onChange }) => <ProvinceSelect value={value} onChange={onChange} />}
   </Field>
 
   <FormSpy
-    initialValues={
-      province="beijing"
-    }
-    subscription: {
-      province: true
-    }
+    initialValues={{
+      province: 'beijing',
+    }}
+    subscription={{
+      province: true,
+    }}
   >
-    {({values, errors}) => (
-      <Field
-        name="city"
-        defaultValue=""
-      >
-        {({value, onChange}) => (
-          <CitySelect
-            province={values.province}
-            value={value}
-            onChange={onChange}
-          />
+    {({ values, errors }) => (
+      <Field name='city' defaultValue=''>
+        {({ value, onChange }) => (
+          <CitySelect province={values.province} value={value} onChange={onChange} />
         )}
       </Field>
     )}

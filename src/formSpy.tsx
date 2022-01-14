@@ -8,24 +8,33 @@ interface IFormSpyCreateOptions {
 }
 
 interface IFormSpyProps {
-  initialValues?: {[name:string]:TValue};
-  subscription?: {[name:string]:boolean};
+  initialValues?: { [name: string]: TValue };
+  subscription?: { [name: string]: boolean };
 }
 
 interface IFormSpyState {
-  values: {[name:string]:TValue};
-  errors: {[name:string]:string};
+  values: { [name: string]: TValue };
+  errors: { [name: string]: string };
+}
+
+/**
+ * FormSpy组件的函数类型子节点的参数类型
+ */
+export interface IFormSpyArguments {
+  values: Record<string, any>;
+  errors: Record<string, string>;
+  initialValues: Record<string, any>;
 }
 
 export type TFormSpyComponent = React.ComponentType<IFormSpyProps>;
 
-const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
+const createFormSpy = (options: IFormSpyCreateOptions): TFormSpyComponent => {
   let formSpyIndex = 0;
 
   return class extends React.Component<IFormSpyProps, IFormSpyState> {
-    private _uniqueId!:string;
+    private _uniqueId!: string;
 
-    constructor(props:IFormSpyProps) {
+    constructor(props: IFormSpyProps) {
       super(props);
 
       formSpyIndex += 1;
@@ -57,7 +66,7 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
      * @param value 表单项值
      * @param error 表单项错误信息
      */
-    public onFieldChange = (name:string, value:TValue, error:string) => {
+    public onFieldChange = (name: string, value: TValue, error: string) => {
       // 校验是否订阅该表单项
       if (this._isSubscribe(name)) {
         // 校验value是否更新
@@ -79,7 +88,7 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
      * 表单项重置，订阅该表单项的spy也要相应的重置
      * @param name 表单项名称
      */
-    public onFieldReset = (name:string) => {
+    public onFieldReset = (name: string) => {
       const { initialValues = {} } = this.props;
       this.onFieldChange(name, initialValues[name], '');
     };
@@ -87,7 +96,7 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
     render() {
       const { children } = this.props;
       if (typeof children === 'function') {
-        const formSpyProps = {
+        const formSpyProps: IFormSpyArguments = {
           values: { ...this.state.values },
           errors: { ...this.state.errors },
           initialValues: { ...this.props.initialValues },
@@ -103,7 +112,7 @@ const createFormSpy = (options: IFormSpyCreateOptions):TFormSpyComponent => {
      * 是否订阅该表单项
      * @param name 表单项名称
      */
-    private _isSubscribe = (name:string) => {
+    private _isSubscribe = (name: string) => {
       return !this.props.subscription || this.props.subscription?.[name];
     };
   };
