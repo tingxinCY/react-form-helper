@@ -107,7 +107,7 @@ const { Field } = formInstance;
 >
   {/* 推荐：采用内部注入的参数进行表单项赋值、更新，
       将实现非受控组件的效果，已达到分布式渲染的目的，保证性能 */}
-  {({ value, onChange, error }) => (
+  {({ value, onChange, error }: IFieldArguments) => (
     <div>
       <Input value={value} onChange={(e) => onChange(e.target.value)} />
       <span>{error}</span>
@@ -135,7 +135,7 @@ const { Field } = formInstance;
 >
   {/* 不推荐: 不通过注入的onChange方法更新value，
       而是触发外部的setState更新，这将导致页面重绘，容易引发性能问题。 */}
-  {({ value, error }) => (
+  {({ value, error }: IFieldArguments) => (
     <div>
       <Input value={value} onChange={(e) => this.setState('userName', e.target.value)} />
       <span>{error}</span>
@@ -195,7 +195,7 @@ const { FormSpy } = formInstance;
       province: true,
     }}
   >
-    {({ values, errors }) => (
+    {({ values, errors }: IFormSpyArguments) => (
       <Field name='city' defaultValue=''>
         {({ value, onChange }) => (
           <CitySelect province={values.province} value={value} onChange={onChange} />
@@ -244,7 +244,7 @@ onSubmit() {
   value={this.state.workid}
   rules={[{ required: true, message: 'Required' }]}
 >
-  {(props: any) => (
+  {(props) => (
     <Input
       value={props.value}
       onChange={(e) => {
