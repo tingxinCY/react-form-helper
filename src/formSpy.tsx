@@ -10,6 +10,7 @@ interface IFormSpyCreateOptions {
 interface IFormSpyProps {
   initialValues?: { [name: string]: TValue };
   subscription?: { [name: string]: boolean };
+  children?: React.ReactNode | ((args: IFormSpyArguments) => React.ReactNode);
 }
 
 interface IFormSpyState {

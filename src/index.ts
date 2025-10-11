@@ -1,6 +1,6 @@
 import React from 'react';
-import createField, { IRule, TValue, TFieldComponent } from './field';
-import Schema, { Rules, ValidateError } from 'async-validator';
+import createField, { TValue, TFieldComponent } from './field';
+import Schema, { RuleItem, Rules } from 'async-validator';
 import createFormSpy, { TFormSpyComponent } from './formSpy';
 
 // async-validator的types中不包含warning，直接设置会报错
@@ -17,7 +17,7 @@ export interface IReactFormHelperOptions {
 interface IFieldObject {
   name: string;
   value: TValue;
-  rules: IRule[];
+  rules: RuleItem[];
   error: string;
   fieldComponent: any;
 }
@@ -39,7 +39,7 @@ export type TBindFieldFunction = (
   uniqueId: string,
   name: string,
   value: TValue,
-  rules: IRule[] | undefined,
+  rules: RuleItem[] | undefined,
   fieldComponent: any,
 ) => void;
 
@@ -59,7 +59,7 @@ type TFormSpyObject = {
 };
 
 // 表单项对象集合
-type TFormSpysCollection = Record<string, TFormSpyObject>;
+type TFormSpyCollection = Record<string, TFormSpyObject>;
 
 // 绑定formSpy
 export type TBindFormSpyFunction = (uniqueId: string, formSpyComponent: any) => void;
@@ -82,7 +82,7 @@ class ReactFormHelper {
   private _options: IReactFormHelperOptions = {};
 
   // formSpy对象集合
-  private _formSpys: TFormSpysCollection = {};
+  private _formSpyList: TFormSpyCollection = {};
 
   constructor(options?: IReactFormHelperOptions) {
     options && (this._options = options);
@@ -148,7 +148,7 @@ class ReactFormHelper {
    * 实时获取当前状态下的所有表单项值，支持扁平化数据和结构化数据
    * @param {boolean} needParse 是否需要按照namePath进行结构化解析
    */
-  public getValues(needParse: boolean = false): { [key: string]: TValue } {
+  public getValues(needParse = false): { [key: string]: TValue } {
     if (needParse) {
       const { values } = this._processData();
       return values;
@@ -187,9 +187,9 @@ class ReactFormHelper {
       this._fields[fieldUniqueId].fieldComponent.reset();
 
       // 触发FormSpy重绘
-      Object.keys(this._formSpys).forEach((spyUniqueId) => {
+      Object.keys(this._formSpyList).forEach((spyUniqueId) => {
         const fieldName = this._fields[fieldUniqueId].name;
-        this._formSpys[spyUniqueId].formSpyComponent.onFieldReset(fieldName);
+        this._formSpyList[spyUniqueId].formSpyComponent.onFieldReset(fieldName);
       });
     });
   }
@@ -251,8 +251,8 @@ class ReactFormHelper {
     const validationResult = await this._validateSingleField(uniqueId, value);
 
     // 触发FormSpy重绘
-    Object.keys(this._formSpys).forEach((uid) => {
-      this._formSpys[uid].formSpyComponent.onFieldChange(name, value, validationResult.error);
+    Object.keys(this._formSpyList).forEach((uid) => {
+      this._formSpyList[uid].formSpyComponent.onFieldChange(name, value, validationResult.error);
     });
 
     // 表单全局value change hook
@@ -280,7 +280,7 @@ class ReactFormHelper {
     uniqueId: string,
     name: string,
     value: TValue,
-    rules: IRule[] = [],
+    rules: RuleItem[] = [],
     fieldComponent,
   ) => {
     if (!name) return;
@@ -310,7 +310,7 @@ class ReactFormHelper {
    * @private
    * @memberof ReactFormHelper
    */
-  private _setFieldRules = (uniqueId: string, rules: IRule[]) => {
+  private _setFieldRules = (uniqueId: string, rules: RuleItem[]) => {
     if (this._fields[uniqueId]) {
       this._fields[uniqueId].rules = rules;
     }
@@ -379,10 +379,7 @@ class ReactFormHelper {
    * @param source 源数据
    * @param cb 回调函数
    */
-  private _doValidate(
-    descriptor: { [key: string]: IRule[] },
-    source: { [key: string]: TValue },
-  ): Promise<null> {
+  private _doValidate(descriptor: Rules, source: { [key: string]: TValue }): Promise<null> {
     return new Promise((resolve) => {
       Object.keys(descriptor).forEach((uniqueId) => {
         // 先清空当前字段的error，若后续校验未报error，则相当于清除错误
@@ -390,15 +387,15 @@ class ReactFormHelper {
       });
 
       // 执行校验
-      const validator = new Schema(descriptor as Rules);
-      validator.validate(source, undefined, (errors: ValidateError[]) => {
+      const validator = new Schema(descriptor);
+      validator.validate(source, undefined, (errors) => {
         if (errors) {
           errors.forEach((errorItem) => {
-            if (!this._fields[errorItem.field].error) {
-              this._fields[errorItem.field].error =
+            if (!this._fields[errorItem.field!].error) {
+              this._fields[errorItem.field!].error =
                 errorItem.message || 'This is the default error message';
-              this._fields[errorItem.field].fieldComponent.updateError(
-                this._fields[errorItem.field].error,
+              this._fields[errorItem.field!].fieldComponent.updateError(
+                this._fields[errorItem.field!].error,
               );
             }
           });
@@ -454,7 +451,7 @@ class ReactFormHelper {
     const formSpy: TFormSpyObject = {
       formSpyComponent,
     };
-    this._formSpys[uniqueId] = formSpy;
+    this._formSpyList[uniqueId] = formSpy;
   };
 
   /**
@@ -465,8 +462,8 @@ class ReactFormHelper {
    * @memberof ReactFormHelper
    */
   private _unbindFormSpy: TUnbindFormSpyFunction = (uniqueId) => {
-    if (this._formSpys[uniqueId]) {
-      delete this._formSpys[uniqueId];
+    if (this._formSpyList[uniqueId]) {
+      delete this._formSpyList[uniqueId];
     }
   };
 }

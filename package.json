@@ -1,44 +1,45 @@
 {
   "name": "@tingxin_cy/react-form-helper",
-  "version": "2.2.2",
-  "main": "dist/index.esm.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
-  "types": "types/index.d.ts",
+  "version": "4.1.0",
+  "description": "A React form helper library",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "(rm -rf ./dist && rollup -c) & (rm -rf ./types && tsc)",
-    "build:type": "rm -rf ./types && tsc",
+    "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "ts-node test/test.ts",
-    "pretest": "npm run build"
-  },
-  "dependencies": {
-    "async-validator": "^3.3.0"
-  },
-  "devDependencies": {
-    "@types/react": "^16.9.35",
-    "@typescript-eslint/eslint-plugin": "^2.28.0",
-    "@typescript-eslint/parser": "^2.28.0",
-    "eslint": "^6.8.0",
-    "eslint-config-ali": "^9.0.2",
-    "eslint-plugin-import": "^2.20.2",
-    "rollup": "^1.0.0",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-typescript": "^1.0.0",
-    "ts-node": "^7.0.1",
-    "tslib": "^1.9.3",
-    "typescript": "^3.2.2"
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix"
   },
   "peerDependencies": {
-    "react": "^16.13.1"
+    "react": ">=16.8.0 <19.0.0"
   },
-  "files": [
-    "dist",
-    "types"
-  ],
+  "dependencies": {
+    "async-validator": "^4.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "^18.3.5",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "react": "^18.3.1",
+    "rollup": "^4.21.3",
+    "tslib": "^2.7.0",
+    "typescript": "^5.5.4"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:tingxinCY/react-form-helper.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
