@@ -13,7 +13,7 @@
     "pretest": "npm run build"
   },
   "dependencies": {
-    "async-validator": "^3.3.0"
+    "async-validator": "^4.2.0"
   },
   "devDependencies": {
     "@types/react": "^16.9.35",
