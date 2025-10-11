@@ -1,35 +1,36 @@
 import React from 'react';
 import { TBindFieldFunction, TUnbindFieldFunction, TOnFieldValueChangeFunction } from './index';
+import { RuleItem } from 'async-validator';
 
-export interface IRule {
-  type?: 'string' | 'number' | 'integer' | 'float' | 'boolean' | 'url' | 'email' | 'enum';
-  required?: boolean;
-  pattern?: RegExp | string;
-  min?: number;
-  max?: number;
-  length?: number;
-  whitespace?: boolean;
-  asyncValidator?: (
-    rule: { [key: string]: IRule | IRule[] },
-    value: any,
-    callback: (error?: string) => void,
-    source: { [key: string]: any },
-  ) => void;
-  validator?: (
-    rule: { [key: string]: IRule | IRule[] },
-    value: any,
-    callback: (error?: string) => void,
-    source: { [key: string]: any },
-  ) => void;
-  message?: string;
-}
+// export interface IRule {
+//   type?: 'string' | 'number' | 'integer' | 'float' | 'boolean' | 'url' | 'email' | 'enum';
+//   required?: boolean;
+//   pattern?: RegExp | string;
+//   min?: number;
+//   max?: number;
+//   length?: number;
+//   whitespace?: boolean;
+//   asyncValidator?: (
+//     rule: { [key: string]: IRule | IRule[] },
+//     value: any,
+//     callback: (error?: string) => void,
+//     source: { [key: string]: any },
+//   ) => void;
+//   validator?: (
+//     rule: { [key: string]: IRule | IRule[] },
+//     value: any,
+//     callback: (error?: string) => void,
+//     source: { [key: string]: any },
+//   ) => void;
+//   message?: string;
+// }
 export type TValue = string | number | boolean;
 
 interface IFieldOptions {
   bindField: TBindFieldFunction;
   unbindField: TUnbindFieldFunction;
   onFieldValueChange: TOnFieldValueChangeFunction;
-  setFieldRules(uniqueId: string, rules: IRule[]): void;
+  setFieldRules(uniqueId: string, rules: RuleItem[]): void;
 }
 
 /**
@@ -45,7 +46,8 @@ interface IFieldProps {
   name: string;
   value?: TValue;
   defaultValue?: TValue;
-  rules?: IRule[];
+  rules?: RuleItem[];
+  children?: React.ReactNode | ((args: IFieldArguments) => React.ReactNode);
 }
 
 export type TFieldComponent = React.ComponentType<IFieldProps>;
