@@ -1,7 +1,7 @@
 {
   "name": "@tingxin_cy/react-form-helper",
   "version": "4.1.0",
-  "description": "A React form helper library",
+  "description": "A React form helper library.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
