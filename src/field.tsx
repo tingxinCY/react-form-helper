@@ -86,6 +86,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
     public init = (constructor?: boolean) => {
       const { name, value, defaultValue, rules } = this.props;
       const initValue = options.controlled ? value : defaultValue;
+      console.log('init', this.props, options);
       const state = {
         value: initValue,
         error: '',
@@ -159,7 +160,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
       const { children, value } = this.props;
       if (typeof children === 'function') {
         const _props: IFieldArguments = {
-          value: value === undefined ? this.state.value : value,
+          value: options.controlled ? value : this.state.value,
           error: this.state.error,
           onChange: this.onChange,
         };
