@@ -2,35 +2,14 @@ import React from 'react';
 import { TBindFieldFunction, TUnbindFieldFunction, TOnFieldValueChangeFunction } from './index';
 import { RuleItem } from 'async-validator';
 
-// export interface IRule {
-//   type?: 'string' | 'number' | 'integer' | 'float' | 'boolean' | 'url' | 'email' | 'enum';
-//   required?: boolean;
-//   pattern?: RegExp | string;
-//   min?: number;
-//   max?: number;
-//   length?: number;
-//   whitespace?: boolean;
-//   asyncValidator?: (
-//     rule: { [key: string]: IRule | IRule[] },
-//     value: any,
-//     callback: (error?: string) => void,
-//     source: { [key: string]: any },
-//   ) => void;
-//   validator?: (
-//     rule: { [key: string]: IRule | IRule[] },
-//     value: any,
-//     callback: (error?: string) => void,
-//     source: { [key: string]: any },
-//   ) => void;
-//   message?: string;
-// }
-export type TValue = string | number | boolean;
+export type TValue = any;
 
 interface IFieldOptions {
   bindField: TBindFieldFunction;
   unbindField: TUnbindFieldFunction;
   onFieldValueChange: TOnFieldValueChangeFunction;
   setFieldRules(uniqueId: string, rules: RuleItem[]): void;
+  controlled: boolean;
 }
 
 /**
@@ -85,7 +64,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
 
         // 通过外部修改value，异步操作，后执行，避免新的rules未生效
         if (value !== prevProps.value) {
-          options.onFieldValueChange(this.uniqueId, this.name, value ?? '').then(({ error }) => {
+          options.onFieldValueChange(this.uniqueId, this.name, value).then(({ error }) => {
             if (error !== this.state.error) {
               this.setState({
                 error,
@@ -106,7 +85,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
      */
     public init = (constructor?: boolean) => {
       const { name, value, defaultValue, rules } = this.props;
-      const initValue = (value === undefined ? defaultValue : value) ?? '';
+      const initValue = value ?? defaultValue;
       const state = {
         value: initValue,
         error: '',
@@ -127,15 +106,15 @@ const createField = (options: IFieldOptions): TFieldComponent => {
      * @returns {value: TValue, error: string} 当前表单项的value值和error值
      */
     public onChange = (value: TValue): Promise<{ value: TValue; error: string }> => {
-      // 受控组件模式 或者 value没有变更
-      if (this.props.value !== undefined || value === this.state.value) {
+      // 受控组件模式 或者 value没有变更情况下，直接返回结果
+      if (options.controlled || value === this.state.value) {
         return Promise.resolve({
           value: this.state.value,
           error: this.state.error,
         });
       }
 
-      // 执行重绘
+      // 非受控组件模式先执行表单重绘
       this.setState({ value });
 
       // 非受控组件模式 且 value有变更

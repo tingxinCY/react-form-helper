@@ -4,13 +4,14 @@ import Schema, { RuleItem, Rules } from 'async-validator';
 import createFormSpy, { TFormSpyComponent } from './formSpy';
 
 // async-validator的types中不包含warning，直接设置会报错
-const SchemaTemp: any = Schema;
-SchemaTemp.warning = function () {};
+Schema.warning = function () {};
 
 // 工厂函数参数对象
 export interface IReactFormHelperOptions {
   onValueChange?(name: string, value: any, error: string): void;
   onErrorsChange?(errors: { [fieldName: string]: string } | null): void;
+  // 是否受控模式，默认true
+  controlled?: boolean;
 }
 
 // 表单项对象
@@ -26,10 +27,10 @@ interface IFieldObject {
 export type TFieldsCollection = Record<string, IFieldObject>;
 
 // 表单项错误信息集合
-type TErrorsCollection = { [fieldName: string]: string } | null;
+export type TErrorsCollection = { [fieldName: string]: string } | null;
 
 // 表单校验结果对象
-type TResultDataObject = {
+export type TValidationResult = {
   errors: TErrorsCollection;
   values: any;
 };
@@ -87,11 +88,15 @@ class ReactFormHelper {
   constructor(options?: IReactFormHelperOptions) {
     options && (this._options = options);
 
+    // 是否受控模式，默认true
+    const controlled = this._options.controlled ?? true;
+
     this.Field = createField({
       bindField: this._bindField,
       unbindField: this._unbindField,
       onFieldValueChange: this._onFieldValueChange,
       setFieldRules: this._setFieldRules,
+      controlled,
     });
 
     this.FormSpy = createFormSpy({
@@ -119,7 +124,7 @@ class ReactFormHelper {
    * 验证全部表单项
    * @param callback 表单验证的回调函数
    */
-  public async validateFields(): Promise<TResultDataObject> {
+  public async validateFields(): Promise<TValidationResult> {
     const promiseArray: Array<Promise<any>> = [];
     Object.keys(this._fields).forEach((uniqueId) => {
       /* 对表单项逐一进行校验，避免因为一个async validation而导致整体校验结果进入promise中，
@@ -129,7 +134,7 @@ class ReactFormHelper {
       // 未定义rule的field无需进行校验
       if (field.rules.length > 0) {
         const rules = { [uniqueId]: field.rules };
-        const source = { [uniqueId]: field.value ?? '' };
+        const source = { [uniqueId]: field.value };
         promiseArray.push(this._doValidate(rules, source));
       }
     });
@@ -148,7 +153,7 @@ class ReactFormHelper {
    * 实时获取当前状态下的所有表单项值，支持扁平化数据和结构化数据
    * @param {boolean} needParse 是否需要按照namePath进行结构化解析
    */
-  public getValues(needParse = false): { [key: string]: TValue } {
+  public getValues(needParse = false) {
     if (needParse) {
       const { values } = this._processData();
       return values;
@@ -172,13 +177,15 @@ class ReactFormHelper {
    *
    * @memberof ReactFormHelper
    */
-  public reset(name?: string) {
+  public reset(nameList?: string[]) {
     let uniqueIds: string[] = [];
-    if (name) {
-      const uniqueId = this._getUniqueIdByName(name);
-      if (uniqueId) {
-        uniqueIds.push(uniqueId);
-      }
+    if (nameList) {
+      nameList.forEach((name) => {
+        const uniqueId = this._getUniqueIdByName(name);
+        if (uniqueId) {
+          uniqueIds.push(uniqueId);
+        }
+      });
     } else {
       uniqueIds = Object.keys(this._fields);
     }
@@ -259,7 +266,7 @@ class ReactFormHelper {
     this._options.onValueChange && this._options.onValueChange(name, value, validationResult.error);
 
     // 当设置了onErrorsChange Hook，同时当前表单项error发生了变化，则触发全局errorsChange hook
-    const cacheError = this._errorsCache ? this._errorsCache[name] || '' : '';
+    const cacheError = this._errorsCache?.[name] || '';
     if (this._options.onErrorsChange && validationResult.error !== cacheError) {
       const newErrors = this.getErrors();
       this._emitErrorsChange(newErrors);
@@ -323,28 +330,30 @@ class ReactFormHelper {
    */
   private async _validateSingleField(uniqueId: string, value: TValue): Promise<{ error: string }> {
     if (!this._fields[uniqueId]) return Promise.reject();
+
     this._fields[uniqueId].value = value;
     const descriptor = {
       [uniqueId]: this._fields[uniqueId].rules,
     };
     const source = {
-      [uniqueId]: value === null ? '' : value,
+      [uniqueId]: value,
     };
 
     await this._doValidate(descriptor, source);
 
-    return { error: this._fields[uniqueId].error };
+    return {
+      error: this._fields[uniqueId].error,
+    };
   }
 
   /**
    * 处理context中的数据，产出errors、values
    * @param {Object} fields 源数据表单字段
    */
-  private _processData(): TResultDataObject {
+  private _processData(): TValidationResult {
     const errors: TErrorsCollection = {};
     const values: any = {};
     Object.keys(this._fields).forEach((uniqueId) => {
-      // debugger;
       const field = this._fields[uniqueId];
       if (field.error) {
         errors[field.name] = field.error;

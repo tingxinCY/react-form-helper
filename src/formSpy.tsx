@@ -73,13 +73,19 @@ const createFormSpy = (options: IFormSpyCreateOptions): TFormSpyComponent => {
         // 校验value是否更新
         if (this.state.values[name] !== value) {
           this.setState(({ values }) => ({
-            values: { ...values, [name]: value },
+            values: {
+              ...values,
+              [name]: value,
+            },
           }));
         }
         // 校验error是否更新
-        if ((this.state.errors?.[name] ?? '') !== error) {
+        if ((this.state.errors[name] ?? '') !== error) {
           this.setState(({ errors }) => ({
-            errors: { ...errors, [name]: error },
+            errors: {
+              ...errors,
+              [name]: error,
+            },
           }));
         }
       }
@@ -114,7 +120,7 @@ const createFormSpy = (options: IFormSpyCreateOptions): TFormSpyComponent => {
      * @param name 表单项名称
      */
     private _isSubscribe = (name: string) => {
-      return !this.props.subscription || this.props.subscription?.[name];
+      return !!this.props.subscription?.[name];
     };
   };
 };

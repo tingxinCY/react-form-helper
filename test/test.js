@@ -1,4 +1,4 @@
-function test(): void {
+function test() {
   console.log('do test');
 }
 

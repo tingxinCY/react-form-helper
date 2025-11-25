@@ -1,14 +1,14 @@
 # @tingxin_cy/react-form-helper
 
-React表单解决方案，专注解决“数据采集”和“数据校验”两大表单核心需求，采用分布式设计从根源解决表格性能问题，同时该方案与 UI 组件解耦适用于任何 UI 框架或者原生 UI，支持任何复杂的表单需求。
+React表单解决方案，专注解决“数据采集”和“数据校验”两大表单核心需求，支持受控表单模式和非受控表单模式(分布式设计可有效提升表单性能)，同时该方案不绑定UI逻辑，可与任何UI框架或者原生UI搭配使用，极致的灵活性设计支持任何复杂的表单需求。
 
 ## 特性
 
-- 支持自动化表单校验，内置多种数据类型规则，同时支持自定义的同步校验&异步校验。
-- 支持结构化数据收集，支持按照 namePath (例如：'a.b.0.c'）自动解析并输出结构化表单数据。
-- 表单字段控件支持采用分布式渲染，从而优化表单性能，达到类似非受控组件的效果。
-- 无 UI 侵入，适用于任何 UI 框架或者原生 UI，一次学习到处使用。
-- 支持多表单实例并存，可并列使用也可嵌套使用。
+- 支持自动化表单校验，内置丰富完善的数据类型规则，同时支持自定义的同步校验&异步校验。
+- 支持结构化数据收集，支持按照NamePath (例如：'a.b.0.c'）自动解析并输出结构化表单数据。
+- 表单字段控件支持非受控的分布式渲染，从而优化表单性能，达到类似非受控组件的效果。
+- 无内置 UI 组件，可与任何 UI 框架或者原生 UI搭配使用，一次学习到处使用。
+- 支持多表单实例并存，每个表单实例之间相互独立，互不干扰。
 - 极简 API 设计，仅对外输出 2 个的组件和 5 个方法。
 - 支持 React Hook 模式
 - 总之：适用于任何复杂程度的动态表单场景。
@@ -25,7 +25,7 @@ or
 yarn add @tingxin_cy/react-form-helper -S
 ```
 
-## 导入（class）
+## 导入（Class）
 
 ```js
 import ReactFormHelper from '@tingxin_cy/react-form-helper';
@@ -41,10 +41,11 @@ const formInstance = new ReactFormHelper({
       formErrors: errors,
     });
   },
+  controlled: true
 });
 ```
 
-## 导入（hook)
+## 导入（Hook)
 
 ```js
 import { useForm } from '@tingxin_cy/react-form-helper';
@@ -60,21 +61,23 @@ const formInstance = useForm({
       formErrors: errors,
     });
   },
+  controlled: true
 });
 ```
 
 ### 核心组件
 
 ```js
-const { Field, FormSpy } = formInstance; // 核心组件
+const { Field, FormSpy } = formInstance; 
 ```
 
 #### options (非必须)
 
-| 参数           | 说明                                                                                          | 类型                                                                |
-| -------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| onValueChange  | 全局钩子，监听 value change 事件，适用于一些全局通用的业务逻辑，例如日志发送等                | (name:string, value: string\|number\|boolean, error:string) => void |
-| onErrorsChange | 全局钩子，监听 error change 事件，用于解决一些特殊的交互需求，一般情况建议采用\<FormSpy\>替代 | (errors: {[key:string]:string} \| null)=>void                       |
+| 参数 | 说明 | 类型 | 必填 |
+| -------------- | ----------------------------------------------------- | ----------------------------------------------------------- | ---------- |
+| onValueChange  | 全局钩子，监听 value change 事件，适用于一些全局通用的业务逻辑，例如日志发送等 | (name:string, value: string\|number\|boolean, error:string) => void | 否 |
+| onErrorsChange | 全局钩子，监听 error change 事件，用于解决一些特殊的交互需求，一般情况建议采用\<FormSpy\>替代 | (errors: {[key:string]:string} \| null)=>void | 否 |
+| controlled | 是否采用受控模式，默认值为 true，开启后将无法采用<Field \/>内部注入的 onChange 方法修改表单项值，须通过\<Field value={...} />修改表单项值。 | boolean | 否 |
 
 ---
 
@@ -90,12 +93,14 @@ const { Field } = formInstance;
 
 ##### 属性
 
-| 名称         | 说明                                                                                                                                                          | 类型                      | 空   |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---- |
-| name         | 表单项 Name，表单全局唯一，用于数据收集，支持 namePath 格式，自动收集格式化数据。                                                                             | string                    | 非空 |
-| defaultValue | 表单项默认值，value===undefined 时生效，将实现非受控组件的效果，此时可以通过<Field\/>内部注入的 onChange 方法修改表单项值，此时将采用分布式渲染，性能有优势。 | string\| number\| boolean | 可空 |
-| value        | 表单项 Value，可通过修改该值实现表单数据的变更，将实现受控组件的效果，此时无法采用<Field \/>内部注入的 onChange 方法修改表单项值。                            | string\| number\| boolean | 可空 |
-| rules        | 检验规则，为空时将不对该表单值进行校验，可利用此特性实现单纯的数据收集。                                                                                      | [Rule](#rule)[]           | 可空 |
+| 名称 | 说明 | 类型 | 必填 |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------- |
+| name         | 表单项 Name，表单全局唯一，用于数据收集，支持 namePath 格式，自动收集格式化数据。                                                                             | string                    | 是      |
+| defaultValue | 表单项默认值，controlled 为 false 时生效，将实现非受控组件的效果，此时可以通过<Field\/>内部注入的 onChange 方法修改表单项值，此时将采用分布式渲染，性能有优势。 | string\| number\| boolean | 否       |
+| value        | 表单项 Value，可通过修改该值实现表单数据的变更，将实现受控组件的效果，此时无法采用<Field \/>内部注入的 onChange 方法修改表单项值。                            | string\| number\| boolean | 否      |
+| rules        | 检验规则，为空时将不对该表单值进行校验，可利用此特性实现单纯的数据收集。                                                                                      | [Rule](#rule)[]           | 否      |
+
+---
 
 ##### 分布式渲染（等同于非受控组件形态）:
 
@@ -105,8 +110,8 @@ const { Field } = formInstance;
   defaultValue=''
   rule={[{ type: 'string', required: true, message: '用户名不能为空' }]}
 >
-  {/* 推荐：采用内部注入的参数进行表单项赋值、更新，
-      将实现非受控组件的效果，已达到分布式渲染的目的，保证性能 */}
+  {/* 采用内部注入的参数进行表单项赋值、更新，
+      将实现非受控组件的效果，已达到分布式渲染的目的 */}
   {({ value, onChange, error }: IFieldArguments) => (
     <div>
       <Input value={value} onChange={(e) => onChange(e.target.value)} />
@@ -117,6 +122,7 @@ const { Field } = formInstance;
 ```
 
 参数注入：
+
 | 名称 | 说明 | 类型 |
 | ---- | ---- | ---- |
 | value | 表单项 Value，用于表单控件赋值。 | string\|number\|boolean |
@@ -125,16 +131,18 @@ const { Field } = formInstance;
 
 ---
 
-##### 非分布式渲染（等同于受控组件形态）：
+##### 非受控渲染表单
+非受控模式下将具有更高的灵活性，表单绘制的原始数据和表单收集的数据解耦，结构可完全不同，在实现动态联动复杂表单同时也能轻易收集到想要的数据结构。
+例如下面简单的例子中，原始数据中的userName字段将被收集到user.name字段中。
 
 ```js
 <Field
-  name='userName'
+  name='user.name'
   value={this.state.userName}
   rule={[{ type: 'string', required: true, message: '用户名不能为空' }]}
 >
-  {/* 不推荐: 不通过注入的onChange方法更新value，
-      而是触发外部的setState更新，这将导致页面重绘，容易引发性能问题。 */}
+  {/* 不通过注入的onChange方法更新value，
+      而是触发外部的value更新，将实现更好的受控效果。 */}
   {({ value, error }: IFieldArguments) => (
     <div>
       <Input value={value} onChange={(e) => this.setState('userName', e.target.value)} />
@@ -164,7 +172,7 @@ const { Field } = formInstance;
 
 ### \<FormSpy \/\>
 
-订阅表单项 change，触发局部 render，采用分布式渲染的方式解决联动表单场景下的性能问题。
+订阅表单项 change，触发局部 render，解决分布式渲染的方式下表单联动的需求。
 
 ```js
 const { FormSpy } = formInstance;
