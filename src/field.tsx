@@ -85,7 +85,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
      */
     public init = (constructor?: boolean) => {
       const { name, value, defaultValue, rules } = this.props;
-      const initValue = value ?? defaultValue;
+      const initValue = options.controlled ? value : defaultValue;
       const state = {
         value: initValue,
         error: '',
