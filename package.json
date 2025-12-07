@@ -51,6 +51,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=14.18.0"
+    "node": "v18.20.8",
+    "npm": "10.8.2"
   }
 }
