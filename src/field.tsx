@@ -1,8 +1,11 @@
 import React from 'react';
-import { TBindFieldFunction, TUnbindFieldFunction, TOnFieldValueChangeFunction } from './index';
+import {
+  TBindFieldFunction,
+  TUnbindFieldFunction,
+  TOnFieldValueChangeFunction,
+} from './ReactFormHelper';
 import { RuleItem } from 'async-validator';
-
-export type TValue = any;
+import { IFieldArguments, TValue } from './types.js';
 
 interface IFieldOptions {
   bindField: TBindFieldFunction;
@@ -10,15 +13,6 @@ interface IFieldOptions {
   onFieldValueChange: TOnFieldValueChangeFunction;
   setFieldRules(uniqueId: string, rules: RuleItem[]): void;
   controlled: boolean;
-}
-
-/**
- * Field组件的函数类型子节点的参数类型
- */
-export interface IFieldArguments {
-  value: any;
-  error: string;
-  onChange: (value: TValue) => Promise<{ value: TValue; error: string }>;
 }
 
 interface IFieldProps {
@@ -86,7 +80,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
     public init = (constructor?: boolean) => {
       const { name, value, defaultValue, rules } = this.props;
       const initValue = options.controlled ? value : defaultValue;
-      console.log('init', this.props, options);
+
       const state = {
         value: initValue,
         error: '',
