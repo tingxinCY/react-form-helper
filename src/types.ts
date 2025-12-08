@@ -17,6 +17,7 @@ export interface IReactFormHelperOptions {
  * Field组件的函数类型子节点的参数类型
  */
 export interface IFieldArguments {
+  name: string;
   value: any;
   error: string;
   onChange: (value: TValue) => Promise<{ value: TValue; error: string }>;

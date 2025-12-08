@@ -154,6 +154,7 @@ const createField = (options: IFieldOptions): TFieldComponent => {
       const { children, value } = this.props;
       if (typeof children === 'function') {
         const _props: IFieldArguments = {
+          name: this.name,
           value: options.controlled ? value : this.state.value,
           error: this.state.error,
           onChange: this.onChange,
