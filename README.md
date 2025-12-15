@@ -34,7 +34,18 @@ import ReactFormHelper from '@tingxin_cy/react-form-helper';
 ### Class：ReactFormHelper
 
 ```js
-const formInstance = new ReactFormHelper({
+type TFormData = {
+  userInfo: {
+    name: string;
+    gender: string;
+  };
+  syncValue: string;
+  asyncValue: string;
+  like: string[];
+}
+
+
+const formInstance = new ReactFormHelper<TFormData>({
   onValueChange: (name, value, error) => {},
   onErrorsChange: (errors) => {
     this.setState({
@@ -54,7 +65,7 @@ import { useForm } from '@tingxin_cy/react-form-helper';
 ### Hook: useForm
 
 ```js
-const formInstance = useForm({
+const formInstance = useForm<TFormData>({
   onValueChange: (name, value, error) => {},
   onErrorsChange: (errors) => {
     this.setState({
@@ -91,7 +102,7 @@ const { Field, FormSpy } = formInstance;
 const { Field } = formInstance;
 ```
 
-##### 属性
+#### 属性
 
 | 名称 | 说明 | 类型 | 必填 |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------- |
@@ -102,7 +113,7 @@ const { Field } = formInstance;
 
 ---
 
-##### 分布式渲染（等同于非受控组件形态）:
+#### 分布式渲染（等同于非受控组件形态）
 
 ```js
 <Field
@@ -131,8 +142,9 @@ const { Field } = formInstance;
 
 ---
 
-##### 非受控渲染表单
-非受控模式下将具有更高的灵活性，表单绘制的原始数据和表单收集的数据解耦，结构可完全不同，在实现动态联动复杂表单同时也能轻易收集到想要的数据结构。
+#### 受控渲染表单
+
+受控模式下将具有更高的灵活性，表单绘制的原始数据和表单收集的数据解耦，结构可完全不同，在实现动态联动复杂表单同时也能轻易收集到想要的数据结构。
 例如下面简单的例子中，原始数据中的userName字段将被收集到user.name字段中。
 
 ```js
@@ -141,12 +153,14 @@ const { Field } = formInstance;
   value={this.state.userName}
   rule={[{ type: 'string', required: true, message: '用户名不能为空' }]}
 >
-  {/* 不通过注入的onChange方法更新value，
-      而是触发外部的value更新，将实现更好的受控效果。 */}
-  {({ value, error }: IFieldArguments) => (
+  {/* 不通过Field注入的onChange方法更新value，
+      而是触发外部的value更新方法，将实现更好的受控效果。 */}
+  {({ name, value, error }: IFieldArguments) => (
     <div>
-      <Input value={value} onChange={(e) => this.setState('userName', e.target.value)} />
-      <span>{error}</span>
+      <Input value={value} onChange={(e) => this.setState(name, e.target.value)} />
+      {error && (
+        <span>{error}</span>
+      )}
     </div>
   )}
 </Field>
@@ -178,7 +192,7 @@ const { Field } = formInstance;
 const { FormSpy } = formInstance;
 ```
 
-##### 属性
+#### 属性
 
 | 名称          | 说明                                                                                                                                          | 类型                                     | 必须   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------ |
@@ -225,56 +239,69 @@ const { FormSpy } = formInstance;
 
 ## 方法
 
-#### - validateFields():Promise<{errors: {[name:string]:string}|null, values: any}>
+### - validateFields():Promise\<TValidationResult\<TFormData\>
 
 校验所有表单项，返回当前表单收集到的数据和错误信息，多用于表单提交场景
 
 ```js
-onSubmit() {
-  this.formInstance.validateFields().then(({errors, values}:any) => {
-    if (!errors) {
-      // do submit action
-    } else {
-      // do something for error
-    }
-  })
+async onSubmit() {
+  const { errors, values } = await this.formInstance.validateFields();
+  if (!errors) {
+    // do submit action
+  } else {
+    // do something for error
+  }
 }
 ```
 
-#### - setFieldValue(name: string, value: string|number|boolean):void
+### - setFieldValue(name: string, value: string|number|boolean):void
 
 修改特定表单项值，主要用于表单联动编辑场景
 注意：该方法仅在表单项为非受控组件模式下生效。（value === undefined && defaultValue !== undefined）
 
 ```js
 <Field
-  name='userinfo.workid'
-  value={this.state.workid}
-  rules={[{ required: true, message: 'Required' }]}
+  name='userInfo.workId'
+  defaultValue={''}
+  rules={[{ type:'string',required: true, message: 'Required' }]}
 >
-  {(props) => (
+  {({value, onChange}: IFieldArguments) => (
     <Input
-      value={props.value}
-      onChange={(e) => {
-        props.onChange(e.target.value);
-        this.formInstance.setFieldValue('userinfo.name', `员工-${e.target.value}`);
+      value={value}
+      onChange={(v) => {
+        onChange(v);
+        // 联动更新 name 表单项值
+        this.formInstance.setFieldValue('userInfo.name', `员工-${v}`);
       }}
+    />
+  )}
+</Field>
+
+<Field
+  name='userInfo.name'
+  defaultValue={''}
+  rules={[{ type:'string',required: true, message: 'Required' }]}
+>
+  {({value, onChange}: IFieldArguments) => (
+    <Input
+      value={value}
+      onChange={onChange}
     />
   )}
 </Field>
 ```
 
-#### - getValues(needParse:boolean):Object
+### - getValues(needParse:boolean):TValidationResult\<TFormData\>|Record\<string, TValue\>
 
 实时获取当前状态下的表单值，支持获取扁平化数据和结构化数据
 
-##### 参数
+#### 参数
 
 | 名称      | 说明                                   | 类型    | 默认  |
 | --------- | -------------------------------------- | ------- | ----- |
 | needParse | 是否需要基于 namePath 进行表单数据解析 | boolean | false |
 
-##### demo
+#### demo
 
 ```js
 onButtonClick = () => {
@@ -305,7 +332,7 @@ onButtonClick = () => {
 };
 ```
 
-### - getErrors():{[name:string]: string};
+### - getErrors():TErrors
 
 实时获取当前状态的错误信息
 注意：由于校验表单项并绘制表单项 error 信息较为消耗性能，尤其某些表单采用异步校验时，校验时间略长，所以该方法只返回已经产生的错误（编辑表单项内容时触发校验产生的 error），并不会对整体表单进行校验，如需获取表单整体的错误信息请使用`validateFields`方法
@@ -317,7 +344,7 @@ onButtonClick = () => {
 };
 ```
 
-### - reset(fieldName?:string):void;
+### - reset(fieldName?:string):void
 
 表单重置功能，清除 error 信息，复位至 defaultValue 值，若未设置 fieldName，则复位所有表单项
 
@@ -335,214 +362,237 @@ onButtonClick = () => {
 ## Demo
 
 ```js
-import React from 'react';
-import ReactFormHelper from '@tingxin_cy/react-form-helper';
-import { Input, Radio, Button } from 'antd';
+import { useForm, IFieldArguments } from '@tingxin_cy/react-form-helper';
+import { Button, Input, Radio } from 'antd';
+import React, { useState } from 'react';
 
-class FormDemo extends React.Component {
-  constructor(props) {
-    super(props);
-    this.formInstance = new ReactFormHelper({
-      // 表单全局hook
-      onValueChange(name, value, error) {
-        console.log(name, value, error);
-      },
-    });
-  }
+type TFormData = {
+  userInfo: {
+    name: string;
+    gender: 'male' | 'female';
+  };
+  syncValue: string;
+  asyncValue: string;
+  likes: string[];
+};
 
-  onSubmit = () => {
-    this.formInstance.validateFields().then(({ errors, values }) => {
-      console.log(errors);
-      console.log(values);
+const FormDemo = () => {
+  const [formData, setFormData] = useState<TFormData>({
+    userInfo: {
+      name: '',
+      gender: 'male',
+    },
+    syncValue: '',
+    asyncValue: '',
+    likes: ['', '', ''],
+  });
+  const formInstance = useForm<TFormData>({
+    // 表单全局hook
+    onValueChange(name, value, error) {
+      console.log(name, value, error);
+    },
+  });
 
-      /* 错误的情况
+  const onSubmit = async () => {
+    const { errors, values } = await formInstance.validateFields();
+    console.log(errors);
+    console.log(values);
+
+    /**
+      ##错误的情况
       {
-        userinfo.name: "请填写名称",
-        userinfo.gender: "请选择性别",
+        userInfo.name: "请填写名称",
+        userInfo.gender: "请选择性别",
         syncValue: "内容错误，请检查。",
         asyncValue: "内容错误，请检查。",
-        like.0: "请填写第一个爱好",
-        like.1: "请填写第二个爱好",
-        like.2: "请填写第三个爱好"
+        likes.0: "请填写第一个爱好",
+        likes.1: "请填写第二个爱好",
+        likes.2: "请填写第三个爱好"
       }
       {
-        userinfo: {
+        userInfo: {
           name: "",
           gender: ""
         },
         syncValue: "",
         asyncValue: "",
-        like: [ "", "", ""]
+        likes: [ "", "", ""]
       }
-      */
+    */
 
-      /* 正确的情况
+    /**
+      ##正确的情况
       null
       {
-        userinfo: {
-          name: "张三”,
+        userInfo: {
+          name: "张三",
           gender: "male"
         },
         syncValue: "sync",
         asyncValue: "async",
-        like: [ "足球", "篮球", "排球"]
+        likes: [ "足球", "篮球", "排球"]
       }
-      */
-    });
+    */
   };
 
-  render() {
-    const { Field } = this.formInstance;
-    return (
-      <div>
-        <Field
-          name='userinfo.name'
-          defaultValue=''
-          rules={[{ type: 'string', required: true, message: '请填写名称' }]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-              />
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
+  const { Field } = formInstance;
+  return (
+    <div>
+      <Field
+        name="userInfo.name"
+        value={formData.userInfo.name}
+        rules={[{ type: 'string', required: true, message: '请填写名称' }]}
+      >
+        {({ name, value, error }: IFieldArguments) => (
+          <div>
+            <Input
+              value={value}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  userInfo: {
+                    ...formData.userInfo,
+                    [name]: e.target.value,
+                  },
+                });
+              }}
+            />
+            <span>{error}</span>
+          </div>
+        )}
+      </Field>
 
-        <Field
-          name='userinfo.gender'
-          defaultValue=''
-          rules={[
-            { type: 'enum', enum: ['male', 'female'], required: true, message: '请选择性别' },
-          ]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Radio.Group
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-                value={fieldProps.value}
-              >
-                <Radio value={'male'}>男</Radio>
-                <Radio value={'female'}>女</Radio>
-              </Radio.Group>
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
+      <Field
+        name="userInfo.gender"
+        value={formData.userInfo.gender}
+        rules={[
+          {
+            type: 'enum',
+            enum: ['male', 'female'],
+            required: true,
+            message: '请选择性别',
+          },
+        ]}
+      >
+        {({ name, value, error }: IFieldArguments) => (
+          <div>
+            <Radio.Group
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  userInfo: {
+                    ...formData.userInfo,
+                    [name]: e.target.value,
+                  },
+                });
+              }}
+              value={value}
+            >
+              <Radio value={'male'}>男</Radio>
+              <Radio value={'female'}>女</Radio>
+            </Radio.Group>
+            <span>{error}</span>
+          </div>
+        )}
+      </Field>
 
-        {/* 自定义同步校验 */}
-        <Field
-          name='syncValue'
-          defaultValue=''
-          rules={[
-            {
-              validator(rule, value, callback) {
-                if (value === 'sync') {
+      {/* 自定义同步校验 */}
+      <Field
+        name="syncValue"
+        value={formData.syncValue}
+        rules={[
+          {
+            validator(rule, value, callback) {
+              if (value === 'sync') {
+                callback(); // 校验通过
+              } else {
+                callback('内容错误，请检查。');
+              }
+            },
+          },
+        ]}
+      >
+        {({ name, value, error }: IFieldArguments) => (
+          <div>
+            <Input
+              value={value}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  [name]: e.target.value,
+                });
+              }}
+            />
+            <span>{error}</span>
+          </div>
+        )}
+      </Field>
+
+      {/* 自定义异步校验 */}
+      <Field
+        name="asyncValue"
+        value={formData.asyncValue}
+        rules={[
+          {
+            validator(rule, value, callback) {
+              Promise.resolve().then(() => {
+                if (value === 'async') {
                   callback(); // 校验通过
                 } else {
                   callback('内容错误，请检查。');
                 }
-              },
+              });
             },
-          ]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-              />
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
-
-        {/* 自定义异步校验 */}
-        <Field
-          name='asyncValue'
-          defaultValue=''
-          rules={[
-            {
-              validator(rule, value, callback) {
-                Promise.resolve().then(() => {
-                  if (value === 'async') {
-                    callback(); // 校验通过
-                  } else {
-                    callback('内容错误，请检查。');
-                  }
+          },
+        ]}
+      >
+        {({ name, value, error }: IFieldArguments) => (
+          <div>
+            <Input
+              value={value}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  [name]: e.target.value,
                 });
-              },
-            },
-          ]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-              />
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
+              }}
+            />
+            <span>{error}</span>
+          </div>
+        )}
+      </Field>
 
+      {formData.likes.map((item, index) => (
         <Field
-          name='like.0'
-          defaultValue=''
-          rules={[{ type: 'string', required: true, message: '请填写第一个爱好' }]}
+          key={index}
+          name={`likes.${index}`}
+          value={item}
+          rules={[{ type: 'string', required: true, message: `请填写第${index + 1}个爱好` }]}
         >
-          {(fieldProps) => (
+          {({ value, error }: IFieldArguments) => (
             <div>
               <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
+                value={value}
+                onChange={(e) => {
+                  const newLikes = [...formData.likes];
+                  newLikes[index] = e.target.value;
+                  setFormData({
+                    ...formData,
+                    likes: newLikes,
+                  });
+                }}
               />
-              <span>{fieldProps.error}</span>
+              <span>{error}</span>
             </div>
           )}
         </Field>
+      ))}
 
-        <Field
-          name='like.1'
-          defaultValue=''
-          rules={[{ type: 'string', required: true, message: '请填写第二个爱好' }]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-              />
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
-
-        <Field
-          name='like.2'
-          defaultValue=''
-          rules={[{ type: 'string', required: true, message: '请填写第三个爱好' }]}
-        >
-          {(fieldProps) => (
-            <div>
-              <Input
-                value={fieldProps.value}
-                onChange={(e) => fieldProps.onChange(e.target.value)}
-              />
-              <span>{fieldProps.error}</span>
-            </div>
-          )}
-        </Field>
-
-        <div>
-          <Button onClick={this.onSubmit}>提交</Button>
-        </div>
+      <div>
+        <Button onClick={onSubmit}>提交</Button>
       </div>
-    );
-  }
-}
-
+    </div>
+  );
+};
 export default FormDemo;
 ```
