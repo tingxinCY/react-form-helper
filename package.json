@@ -1,6 +1,6 @@
 {
   "name": "@tingxin_cy/react-form-helper",
-  "version": "6.1.0",
+  "version": "7.0.0",
   "description": "A React form helper library.",
   "type": "module",
   "types": "dist/types/index.d.ts",
