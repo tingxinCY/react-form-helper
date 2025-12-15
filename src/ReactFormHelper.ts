@@ -51,7 +51,7 @@ export type TBindFormSpyFunction = (uniqueId: string, formSpyComponent: any) => 
 // 解绑formSpy
 export type TUnbindFormSpyFunction = (uniqueId: string) => void;
 
-class ReactFormHelper {
+class ReactFormHelper<TFormData extends TValues = TValues> {
   public Field: TFieldComponent;
 
   public FormSpy: TFormSpyComponent;
@@ -109,7 +109,7 @@ class ReactFormHelper {
    * @param callback 表单验证的回调函数
    * @memberof ReactFormHelper
    */
-  public async validateFields(): Promise<TValidationResult> {
+  public async validateFields() {
     const promiseArray: Array<Promise<any>> = [];
     Object.keys(this._fields).forEach((uniqueId) => {
       /* 对表单项逐一进行校验，避免因为一个async validation而导致整体校验结果进入promise中，
@@ -337,7 +337,7 @@ class ReactFormHelper {
    * 处理context中的数据，产出errors、values
    * @param {Object} fields 源数据表单字段
    */
-  private _processData(): TValidationResult {
+  private _processData() {
     const errors: TErrors = {};
     const values: TValues = {};
     Object.keys(this._fields).forEach((uniqueId) => {
@@ -363,10 +363,12 @@ class ReactFormHelper {
       tempValues[`${namePath.pop()}`] = field.value;
     });
 
-    return {
+    const result: TValidationResult<TFormData> = {
       errors: Object.keys(errors).length ? errors : null,
-      values,
+      values: values as TFormData,
     };
+
+    return result;
   }
 
   /**

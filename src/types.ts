@@ -36,9 +36,9 @@ export type TErrors = Record<string, string> | null;
 /**
  * 表单校验结果对象
  */
-export type TValidationResult = {
+export type TValidationResult<TFormData extends TValues = TValues> = {
   errors: TErrors;
-  values: TValues;
+  values: TFormData;
 };
 
 /**
