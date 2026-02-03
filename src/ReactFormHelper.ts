@@ -379,25 +379,43 @@ class ReactFormHelper<TFormData extends TValues = TValues> {
    */
   private _doValidate(descriptor: Rules, source: { [key: string]: TValue }): Promise<null> {
     return new Promise((resolve) => {
-      Object.keys(descriptor).forEach((uniqueId) => {
-        // 先清空当前字段的error，若后续校验未报error，则相当于清除错误
-        this._fields[uniqueId].error = '';
-      });
+      // Object.keys(descriptor).forEach((uniqueId) => {
+      //   // 先清空当前字段的error，若后续校验未报error，则相当于清除错误
+      //   this._fields[uniqueId].error = '';
+      // });
 
       // 执行校验
       const validator = new Schema(descriptor);
       validator.validate(source, undefined, (errors) => {
-        if (errors) {
-          errors.forEach((errorItem) => {
-            if (!this._fields[errorItem.field!].error) {
-              this._fields[errorItem.field!].error =
-                errorItem.message || 'This is the default error message';
-              this._fields[errorItem.field!].fieldComponent.updateError(
-                this._fields[errorItem.field!].error,
-              );
-            }
-          });
-        }
+        const errorsMap =
+          errors?.reduce(
+            (prev, cur) => {
+              prev[cur.field!] = cur.message || 'This is the default error message';
+              return prev;
+            },
+            {} as Record<string, string>,
+          ) ?? {};
+
+        // 遍历所有待校验字段，如果error发生变更，则更新error
+        Object.keys(descriptor).forEach((uniqueId) => {
+          const error = errorsMap[uniqueId] ?? '';
+          if (this._fields[uniqueId].error !== error) {
+            this._fields[uniqueId].error = error;
+            this._fields[uniqueId].fieldComponent.updateError(error);
+          }
+        });
+
+        // if (errors) {
+        //   errors.forEach((errorItem) => {
+        //     if (!this._fields[errorItem.field!].error) {
+        //       this._fields[errorItem.field!].error =
+        //         errorItem.message || 'This is the default error message';
+        //       this._fields[errorItem.field!].fieldComponent.updateError(
+        //         this._fields[errorItem.field!].error,
+        //       );
+        //     }
+        //   });
+        // }
         resolve(null);
       });
     });
